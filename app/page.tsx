@@ -104,22 +104,22 @@ export default async function Home() {
   }));
 
   return (
-    <div className="p-10 flex flex-col gap-8">
-      <div className="flex items-start justify-between">
+<div className="p-4 md:p-10 flex flex-col gap-6 md:gap-8">
+<div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <h2 className="text-3xl font-medium">Visão geral</h2>
+<h2 className="text-2xl md:text-3xl font-medium">Visão geral</h2>
           <p className="text-text mt-2">Boa noite, equipe Mafteach.</p>
           <p className="text-text-secondary text-sm mt-1">
             Aqui você acompanha o andamento dos nossos clientes e conteúdos.
           </p>
         </div>
-        <div className="flex items-center gap-2 border border-line rounded-card px-3 py-2 text-sm text-text-secondary shrink-0">
+<div className="flex items-center gap-2 border border-line rounded-card px-3 py-2 text-sm text-text-secondary shrink-0 w-fit">
           <Calendar size={14} strokeWidth={1.5} />
           {today}
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+<div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {stats.map(({ label, value, icon: Icon }) => (
           <div key={label} className="border border-line rounded-card p-5 bg-card">
             <div className="flex items-center justify-between text-text-tertiary mb-4">
@@ -131,8 +131,8 @@ export default async function Home() {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        <div className="col-span-2 border border-line rounded-card bg-card p-6">
+<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div className="lg:col-span-2 border border-line rounded-card bg-card p-4 md:p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="flex items-center gap-2 text-base font-medium">
               <Zap size={16} className="text-champagne" strokeWidth={1.5} />
@@ -144,22 +144,22 @@ export default async function Home() {
           </div>
           <div className="flex flex-col divide-y divide-line">
             {recentItems.map(({ id, title, meta, date, status }) => (
-              <div key={id} className="flex items-center gap-4 py-3">
+<div key={id} className="flex items-center gap-3 md:gap-4 py-3">
                 <div className="w-9 h-9 rounded-full border border-line flex items-center justify-center shrink-0">
                   <FileText size={15} strokeWidth={1.5} className="text-text-tertiary" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm">{title}</p>
+<p className="text-sm truncate">{title}</p>
                   <p className="text-xs text-text-tertiary truncate">{meta}</p>
                 </div>
-                <span className="text-xs text-text-tertiary shrink-0">{date}</span>
+<span className="text-xs text-text-tertiary shrink-0 hidden sm:block">{date}</span>
                 <Badge label={status} />
               </div>
             ))}
           </div>
         </div>
 
-        <div className="border border-line rounded-card bg-card p-6 h-fit">
+<div className="border border-line rounded-card bg-card p-4 md:p-6 h-fit">
           <h3 className="flex items-center gap-2 text-base font-medium mb-5">
             <BarChart3 size={16} className="text-champagne" strokeWidth={1.5} />
             Status geral
@@ -184,7 +184,7 @@ export default async function Home() {
         </div>
       </div>
 
-      <div className="border border-line rounded-card bg-card p-6">
+<div className="border border-line rounded-card bg-card p-4 md:p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="flex items-center gap-2 text-base font-medium">
             <Users size={16} className="text-champagne" strokeWidth={1.5} />
@@ -199,7 +199,7 @@ export default async function Home() {
             <tr className="text-left text-text-tertiary text-xs border-b border-line">
               <th className="pb-2 font-normal">Cliente</th>
               <th className="pb-2 font-normal">Status</th>
-              <th className="pb-2 font-normal">Último conteúdo</th>
+            <th className="pb-2 font-normal hidden sm:table-cell">Último conteúdo</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
@@ -214,7 +214,7 @@ export default async function Home() {
                 <td>
                   <Badge label={status} />
                 </td>
-                <td className="text-text-secondary">{last_content}</td>
+<td className="text-text-secondary hidden sm:table-cell">{last_content}</td>
               </tr>
             ))}
           </tbody>

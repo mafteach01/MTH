@@ -96,7 +96,7 @@ export function ContentTable({
                 <td className="align-middle">
                   <button
                     onClick={() => onExpand(item.id)}
-                    className="opacity-0 group-hover:opacity-100 text-text-tertiary hover:text-champagne transition-opacity p-1"
+                    className="md:opacity-0 md:group-hover:opacity-100 text-text-tertiary hover:text-champagne transition-opacity p-2"
                     title="Abrir detalhes"
                   >
                     <Maximize2 size={13} strokeWidth={1.5} />

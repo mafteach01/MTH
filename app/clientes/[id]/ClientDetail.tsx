@@ -435,7 +435,7 @@ export function ClientDetail({
   }
 
   return (
-    <div className="p-10 flex flex-col gap-8 max-w-6xl">
+<div className="p-4 md:p-10 flex flex-col gap-6 md:gap-8 max-w-6xl">
       <Link
         href="/clientes"
         className="flex items-center gap-2 text-sm text-text-secondary hover:text-champagne w-fit"
@@ -445,13 +445,13 @@ export function ClientDetail({
       </Link>
 
       {/* Cabeçalho do cliente */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-3 md:gap-4">
         <div className="w-12 h-12 rounded-full bg-card-alt border border-line flex items-center justify-center text-champagne shrink-0">
           {client.name.charAt(0)}
         </div>
         <div>
-          <div className="flex items-center gap-3">
-            <h2 className="text-3xl font-medium">{client.name}</h2>
+          <div className="flex flex-wrap items-center gap-2 md:gap-3">
+            <h2 className="text-2xl md:text-3xl font-medium">{client.name}</h2>
             <select
               value={client.status}
               onChange={(e) => changeClientStatus(e.target.value)}
@@ -480,7 +480,7 @@ export function ClientDetail({
       <div className="flex items-center gap-1 border-b border-line">
         <button
           onClick={() => setActiveTab("geral")}
-          className={`flex items-center gap-2 text-sm px-4 py-2.5 border-b-2 -mb-px transition-colors ${
+          className={`flex items-center gap-2 text-sm px-3 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap shrink-0 ${
             activeTab === "geral"
               ? "border-champagne text-text"
               : "border-transparent text-text-tertiary hover:text-text-secondary"
@@ -534,7 +534,7 @@ export function ClientDetail({
 
             {editingInfo ? (
               <div className="flex flex-col gap-5">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs text-text-secondary">Documento (CPF/CNPJ)</label>
                     <input
@@ -574,7 +574,7 @@ export function ClientDetail({
                       ))}
                     </select>
                   </div>
-                  <div className="flex flex-col gap-1.5 col-span-2">
+                  <div className="flex flex-col gap-1.5 sm:col-span-2">
                     <label className="text-xs text-text-secondary">Equipe vinculada</label>
                     <select
                       value={teamIdDraft}
@@ -835,7 +835,7 @@ export function ClientDetail({
           </div>
 
           {/* Objetivo */}
-          <div className="border border-line rounded-card bg-card p-6">
+          <div className="border border-line rounded-card bg-card p-4 md:p-6">
             <div className="flex items-center justify-between mb-2">
               <h3 className="flex items-center gap-2 text-xs text-text-tertiary uppercase tracking-wide">
                 <Target size={14} className="text-champagne" strokeWidth={1.5} />
@@ -921,7 +921,7 @@ export function ClientDetail({
                   </p>
                   <button
                     onClick={() => deleteNote(note.id)}
-                    className="text-text-tertiary hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                    className="text-text-tertiary hover:text-red-400 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0"
                   >
                     <Trash2 size={13} strokeWidth={1.5} />
                   </button>
@@ -933,8 +933,8 @@ export function ClientDetail({
       )}
 
       {activeTab === "planejamento" && (
-        <div className="grid grid-cols-3 gap-6">
-          <div className="col-span-2 flex flex-col gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 flex flex-col gap-6">
             {/* Plano */}
             <div className="border border-line rounded-card bg-card p-6">
               <div className="flex items-center justify-between mb-2">

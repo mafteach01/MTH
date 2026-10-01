@@ -108,21 +108,29 @@ export function CalendarioEditorial({
           e.stopPropagation();
           onExpand(item.id);
         }}
-        className={`text-left bg-card-alt border border-line rounded-badge px-2 py-1 hover:border-champagne transition-colors cursor-grab active:cursor-grabbing ${
+        className={`text-left w-full bg-card-alt border border-line rounded-card px-3 py-2.5 hover:border-champagne transition-colors cursor-grab active:cursor-grabbing ${
           dragId === item.id ? "opacity-40" : ""
         }`}
       >
-        <p className="text-[11px] text-text truncate">{item.title}</p>
-        <div className="flex flex-wrap items-center gap-1 mt-1">
-          <span className="text-[10px] text-champagne">{statusLabels[item.status]}</span>
+        <p className="text-sm text-text leading-snug break-words">{item.title}</p>
+        <div className="flex flex-wrap items-center gap-1.5 mt-2">
+          <span className="text-xs text-champagne">{statusLabels[item.status]}</span>
           {item.funil && (
             <span
-              className={`text-[9px] rounded-badge px-1.5 py-0.5 border ${funilBadgeClasses(item.funil)}`}
+              className={`text-[11px] rounded-badge px-2 py-0.5 border ${funilBadgeClasses(item.funil)}`}
             >
               {funilLabels[item.funil]}
             </span>
           )}
         </div>
+        {item.tipo_conteudo && (
+          <p className="text-[11px] text-text-tertiary mt-1.5">{item.tipo_conteudo}</p>
+        )}
+        {item.roteiro && (
+          <p className="text-xs text-text-secondary mt-2 line-clamp-3 whitespace-pre-line">
+            {item.roteiro}
+          </p>
+        )}
       </button>
     );
   }
@@ -159,8 +167,8 @@ export function CalendarioEditorial({
         </div>
       </div>
 
-      <div className="border border-line rounded-card bg-card overflow-hidden">
-        <div className="grid grid-cols-7 border-b border-line">
+      <div className="border border-line rounded-card bg-card overflow-x-auto">
+    <div className="grid grid-cols-7 border-b border-line min-w-[980px]">
           {weekDays.map((day) => (
             <div
               key={day}
@@ -171,7 +179,7 @@ export function CalendarioEditorial({
           ))}
         </div>
 
-        <div className="grid grid-cols-7">
+        <div className="grid grid-cols-7 min-w-[980px]">
           {cells.map((day, i) => {
             const iso = day !== null ? toIso(year, month, day) : null;
             const dayItems = iso ? items.filter((it) => it.scheduled_date === iso) : [];
@@ -194,7 +202,7 @@ export function CalendarioEditorial({
                   setDragId(null);
                   setOverIso(null);
                 }}
-                className={`min-h-28 border-b border-line p-2 flex flex-col gap-1 transition-colors ${
+                className={`min-h-44 border-b border-line p-2 flex flex-col gap-1.5 transition-colors ${
                   i % 7 !== 6 ? "border-r" : ""
                 } ${day !== null ? "cursor-pointer hover:bg-card-alt/40" : ""} ${
                   isOver ? "bg-card-alt" : ""
@@ -225,7 +233,7 @@ export function CalendarioEditorial({
           <p className="text-xs text-text-tertiary uppercase tracking-wide mb-3">
             Sem data · arraste pra um dia
           </p>
-          <div className="flex flex-wrap gap-2">{itemsWithoutDate.map(renderChip)}</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">{itemsWithoutDate.map(renderChip)}</div>
         </div>
       )}
     </div>
