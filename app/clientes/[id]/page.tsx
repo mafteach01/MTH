@@ -10,13 +10,33 @@ export default async function ClienteDetalhePage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: client, error: clientError } = await supabase
-    .from("mt_clients")
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data: currentMember } = await supabase
+    .from("mt_team_members")
+    .select("is_admin")
+    .eq("user_id", user?.id)
+    .single();
+
+  const isAdmin = currentMember?.is_admin ?? false;
+
+  const { data: rawClient, error: clientError } = await supabase
+    .from("mt_clients_secure")
     .select("*")
     .eq("id", id)
     .single();
 
-  if (clientError || !client) notFound();
+  if (clientError || !rawClient) notFound();
+
+  // troca os campos de Instagram pelos campos "masked" da view
+  // (que já vêm null automaticamente se quem está logado não é admin)
+  const client = {
+    ...rawClient,
+    instagram_login: rawClient.instagram_login_masked,
+    instagram_password: rawClient.instagram_password_masked,
+  };
 
   const { data: items } = await supabase
     .from("mt_content_items")
@@ -52,6 +72,7 @@ export default async function ClienteDetalhePage({
       team={team ?? []}
       teams={teams ?? []}
       roster={roster ?? []}
+      isAdmin={isAdmin}
     />
   );
 }

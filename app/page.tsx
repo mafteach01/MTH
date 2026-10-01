@@ -25,8 +25,6 @@ const statusOrder = ["ideia", "roteiro", "producao", "aprovacao", "publicado"];
 export default async function Home() {
   const supabase = await createClient();
 
-  const { data: debugUser } = await supabase.auth.getUser();
-  console.log("USUÁRIO NO SERVIDOR:", debugUser.user?.email ?? "NINGUÉM LOGADO");
 
   const today = new Intl.DateTimeFormat("pt-BR", {
     weekday: "short",
@@ -40,7 +38,6 @@ export default async function Home() {
     .from("mt_clients")
     .select("*", { count: "exact", head: true })
     .eq("status", "Ativo");
-  console.log("ERRO ATIVO:", errAtivo);
 
   const { count: countPlanejamento } = await supabase
     .from("mt_clients")
