@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import type { ContentItem, Funil } from "./ClientDetail";
 import { statusLabels } from "./ClientDetail";
@@ -28,12 +28,17 @@ function funilBadgeClasses(funil: Funil) {
       return "bg-card-alt text-text-tertiary border-line";
   }
 }
+
 function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
 function toIso(year: number, month: number, day: number) {
   return `${year}-${pad(month + 1)}-${pad(day)}`;
+}
+
+function ddmmFromIso(iso: string) {
+  return `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
 }
 
 function getMonthGrid(year: number, month: number) {
@@ -64,11 +69,25 @@ export function CalendarioEditorial({
   const [month, setMonth] = useState(now.getMonth());
   const [dragId, setDragId] = useState<string | null>(null);
   const [overIso, setOverIso] = useState<string | null>(null);
+  const [selectedIso, setSelectedIso] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   const cells = getMonthGrid(year, month);
   const itemsWithoutDate = items.filter((i) => !i.scheduled_date);
+  const selectedItems = selectedIso
+    ? items.filter((it) => it.scheduled_date === selectedIso)
+    : [];
 
   function goPrev() {
+    setSelectedIso(null);
     if (month === 0) {
       setMonth(11);
       setYear((y) => y - 1);
@@ -78,6 +97,7 @@ export function CalendarioEditorial({
   }
 
   function goNext() {
+    setSelectedIso(null);
     if (month === 11) {
       setMonth(0);
       setYear((y) => y + 1);
@@ -87,6 +107,7 @@ export function CalendarioEditorial({
   }
 
   function goToday() {
+    setSelectedIso(null);
     setYear(now.getFullYear());
     setMonth(now.getMonth());
   }
@@ -127,7 +148,7 @@ export function CalendarioEditorial({
           <p className="text-[11px] text-text-tertiary mt-1.5">{item.tipo_conteudo}</p>
         )}
         {item.roteiro && (
-          <p className="text-xs text-text-secondary mt-2 line-clamp-3 whitespace-pre-line">
+          <p className="text-xs text-text-secondary mt-2 line-clamp-3 whitespace-pre-line break-words">
             {item.roteiro}
           </p>
         )}
@@ -137,59 +158,66 @@ export function CalendarioEditorial({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-xs text-text-tertiary uppercase tracking-wide">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 className="hidden md:flex items-center gap-2 text-xs text-text-tertiary uppercase tracking-wide">
           <CalendarDays size={14} className="text-champagne" strokeWidth={1.5} />
           Calendário editorial
         </h3>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3 w-full md:w-auto justify-between md:justify-end">
           <button
             onClick={goToday}
             className="text-xs text-text-secondary hover:text-champagne transition-colors px-2"
           >
             Hoje
           </button>
-          <button
-            onClick={goPrev}
-            className="w-8 h-8 flex items-center justify-center rounded-card border border-line hover:border-line-strong transition-colors"
-          >
-            <ChevronLeft size={16} strokeWidth={1.5} />
-          </button>
-          <p className="text-sm text-text-secondary w-36 text-center">
-            {monthNames[month]} {year}
-          </p>
-          <button
-            onClick={goNext}
-            className="w-8 h-8 flex items-center justify-center rounded-card border border-line hover:border-line-strong transition-colors"
-          >
-            <ChevronRight size={16} strokeWidth={1.5} />
-          </button>
+          <div className="flex items-center gap-2 md:gap-3">
+            <button
+              onClick={goPrev}
+              className="w-8 h-8 flex items-center justify-center rounded-card border border-line hover:border-line-strong transition-colors"
+            >
+              <ChevronLeft size={16} strokeWidth={1.5} />
+            </button>
+            <p className="text-sm text-text-secondary w-32 md:w-36 text-center">
+              {monthNames[month]} {year}
+            </p>
+            <button
+              onClick={goNext}
+              className="w-8 h-8 flex items-center justify-center rounded-card border border-line hover:border-line-strong transition-colors"
+            >
+              <ChevronRight size={16} strokeWidth={1.5} />
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="border border-line rounded-card bg-card overflow-x-auto">
-    <div className="grid grid-cols-7 border-b border-line min-w-[980px]">
+      <div className="border border-line rounded-card bg-card overflow-hidden">
+        <div className="grid grid-cols-7 border-b border-line">
           {weekDays.map((day) => (
             <div
               key={day}
-              className="p-3 text-xs text-text-tertiary uppercase tracking-wide text-center"
+              className="py-2 md:p-3 text-[10px] md:text-xs text-text-tertiary uppercase tracking-wide text-center"
             >
               {day}
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-7 min-w-[980px]">
+        <div className="grid grid-cols-7">
           {cells.map((day, i) => {
             const iso = day !== null ? toIso(year, month, day) : null;
             const dayItems = iso ? items.filter((it) => it.scheduled_date === iso) : [];
             const isToday = iso === todayIso;
             const isOver = iso !== null && overIso === iso;
+            const isSelected = iso !== null && iso === selectedIso;
 
             return (
               <div
                 key={i}
-                onClick={() => iso && onCreate(iso)}
+                onClick={() => {
+                  if (!iso) return;
+                  if (isMobile) setSelectedIso(isSelected ? null : iso);
+                  else onCreate(iso);
+                }}
                 onDragOver={(e) => {
                   if (!iso) return;
                   e.preventDefault();
@@ -202,10 +230,10 @@ export function CalendarioEditorial({
                   setDragId(null);
                   setOverIso(null);
                 }}
-                className={`min-h-44 border-b border-line p-2 flex flex-col gap-1.5 transition-colors ${
+                className={`min-h-16 md:min-h-44 min-w-0 border-b border-line p-1 md:p-2 flex flex-col items-center md:items-stretch gap-1 md:gap-1.5 transition-colors ${
                   i % 7 !== 6 ? "border-r" : ""
                 } ${day !== null ? "cursor-pointer hover:bg-card-alt/40" : ""} ${
-                  isOver ? "bg-card-alt" : ""
+                  isOver || isSelected ? "bg-card-alt" : ""
                 }`}
               >
                 {day !== null && (
@@ -219,7 +247,23 @@ export function CalendarioEditorial({
                     >
                       {day}
                     </span>
-                    <div className="flex flex-col gap-1">{dayItems.map(renderChip)}</div>
+
+                    {/* Celular: só bolinhas */}
+                    <div className="flex md:hidden flex-wrap justify-center gap-0.5">
+                      {dayItems.slice(0, 3).map((it) => (
+                        <span key={it.id} className="w-1.5 h-1.5 rounded-full bg-champagne" />
+                      ))}
+                      {dayItems.length > 3 && (
+                        <span className="text-[9px] leading-none text-champagne">
+                          +{dayItems.length - 3}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Computador: cards completos */}
+                    <div className="hidden md:flex flex-col gap-1">
+                      {dayItems.map(renderChip)}
+                    </div>
                   </>
                 )}
               </div>
@@ -228,12 +272,40 @@ export function CalendarioEditorial({
         </div>
       </div>
 
+      {/* Celular: lista do dia selecionado */}
+      {selectedIso ? (
+        <div className="md:hidden border border-line rounded-card bg-card p-4 flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs text-text-tertiary uppercase tracking-wide">
+              Dia {ddmmFromIso(selectedIso)}
+            </p>
+            <button
+              onClick={() => onCreate(selectedIso)}
+              className="text-xs bg-champagne text-black rounded-card px-3 py-1.5 hover:opacity-90"
+            >
+              Novo conteúdo
+            </button>
+          </div>
+          {selectedItems.length === 0 ? (
+            <p className="text-sm text-text-tertiary">Nada agendado nesse dia ainda.</p>
+          ) : (
+            <div className="flex flex-col gap-2">{selectedItems.map(renderChip)}</div>
+          )}
+        </div>
+      ) : (
+        <p className="md:hidden text-xs text-text-tertiary text-center">
+          Toque num dia pra ver ou criar conteúdo.
+        </p>
+      )}
+
       {itemsWithoutDate.length > 0 && (
         <div className="border border-line rounded-card bg-card p-4">
           <p className="text-xs text-text-tertiary uppercase tracking-wide mb-3">
             Sem data · arraste pra um dia
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">{itemsWithoutDate.map(renderChip)}</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+            {itemsWithoutDate.map(renderChip)}
+          </div>
         </div>
       )}
     </div>
