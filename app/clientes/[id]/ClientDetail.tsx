@@ -139,6 +139,7 @@ function ddmmFromISO(iso: string) {
   const [, m, d] = iso.split("-");
   return `${d}/${m}`;
 }
+
 const planLabelRegex = /^(Segunda|Terça|Quarta|Quinta|Sexta|Sábado|Domingo|Total):/;
 
 function splitPlan(plan: string | null) {
@@ -331,7 +332,7 @@ export function ClientDetail({
   }
 
   // ---------- Itens de conteúdo ----------
-    async function createItem(isoDate?: string) {
+  async function createItem(isoDate?: string) {
     const iso = isoDate ?? todayISO();
 
     setSaving(true);
@@ -444,7 +445,7 @@ export function ClientDetail({
   }
 
   return (
-<div className="p-4 md:p-10 flex flex-col gap-6 md:gap-8 max-w-6xl">
+    <div className="p-4 md:p-10 flex flex-col gap-6 md:gap-8 max-w-6xl">
       <Link
         href="/clientes"
         className="flex items-center gap-2 text-sm text-text-secondary hover:text-champagne w-fit"
@@ -489,7 +490,7 @@ export function ClientDetail({
       <div className="flex items-center gap-1 border-b border-line">
         <button
           onClick={() => setActiveTab("geral")}
-          className={`flex items-center gap-2 text-sm px-3 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap shrink-0 ${
+          className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
             activeTab === "geral"
               ? "border-champagne text-text"
               : "border-transparent text-text-tertiary hover:text-text-secondary"
@@ -500,7 +501,7 @@ export function ClientDetail({
         </button>
         <button
           onClick={() => setActiveTab("planejamento")}
-          className={`flex items-center gap-2 text-sm px-4 py-2.5 border-b-2 -mb-px transition-colors ${
+          className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
             activeTab === "planejamento"
               ? "border-champagne text-text"
               : "border-transparent text-text-tertiary hover:text-text-secondary"
@@ -511,14 +512,15 @@ export function ClientDetail({
         </button>
         <button
           onClick={() => setActiveTab("calendario")}
-          className={`flex items-center gap-2 text-sm px-4 py-2.5 border-b-2 -mb-px transition-colors ${
+          className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
             activeTab === "calendario"
               ? "border-champagne text-text"
               : "border-transparent text-text-tertiary hover:text-text-secondary"
           }`}
         >
           <CalendarDays size={14} strokeWidth={1.5} />
-          Calendário editorial
+          <span className="md:hidden">Calendário</span>
+          <span className="hidden md:inline">Calendário editorial</span>
         </button>
       </div>
 
@@ -965,7 +967,7 @@ export function ClientDetail({
                   <textarea
                     value={planDraft}
                     onChange={(e) => setPlanDraft(e.target.value)}
-                    rows={3}
+                    rows={10}
                     className="bg-card-alt border border-line rounded-card p-3 text-sm outline-none focus:border-champagne transition-colors resize-none w-full"
                   />
                   <div className="flex gap-2 justify-end">
@@ -1021,7 +1023,8 @@ export function ClientDetail({
                   Conteúdo
                 </h3>
                 <button
-                  onClick={() => createItem()}                  className="flex items-center gap-1.5 text-xs bg-champagne text-black rounded-card px-3 py-1.5 hover:opacity-90 transition-opacity"
+                  onClick={() => createItem()}
+                  className="flex items-center gap-1.5 text-xs bg-champagne text-black rounded-card px-3 py-1.5 hover:opacity-90 transition-opacity"
                 >
                   Novo conteúdo
                 </button>
