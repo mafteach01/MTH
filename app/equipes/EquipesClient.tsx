@@ -106,9 +106,9 @@ export function EquipesClient({
   }
 
   return (
-    <div className="p-10 flex flex-col gap-8 max-w-6xl">
-      <div className="flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-3xl font-medium">
+    <div className="p-4 md:p-10 flex flex-col gap-6 md:gap-8 max-w-6xl">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="flex items-center gap-2 text-2xl md:text-3xl font-medium">
           <Shield size={22} className="text-champagne" strokeWidth={1.5} />
           Equipes
         </h2>
@@ -124,19 +124,19 @@ export function EquipesClient({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         {teams.map((team) => {
           const teamRoster = roster.filter((r) => r.team_id === team.id);
           return (
             <div
               key={team.id}
-              className="border border-line rounded-card bg-card p-6 flex flex-col gap-4"
+              className="min-w-0 border border-line rounded-card bg-card p-5 md:p-6 flex flex-col gap-4"
             >
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">{team.name}</h3>
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-lg font-medium break-words">{team.name}</h3>
                 <button
                   onClick={() => openEditSidebar(team.id)}
-                  className="text-text-tertiary hover:text-champagne transition-colors"
+                  className="text-text-tertiary hover:text-champagne transition-colors shrink-0"
                 >
                   <Pencil size={14} strokeWidth={1.5} />
                 </button>
@@ -146,8 +146,11 @@ export function EquipesClient({
                 {teamRoster.map((entry) => {
                   const member = memberById.get(entry.team_member_id);
                   return (
-                    <div key={entry.id} className="flex items-center gap-2 text-sm">
-                      <span>{member?.name ?? "—"}</span>
+                    <div
+                      key={entry.id}
+                      className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm"
+                    >
+                      <span className="break-all">{member?.name ?? "—"}</span>
                       <span className="text-text-tertiary">·</span>
                       <span className="text-champagne text-xs">{entry.role}</span>
                     </div>
@@ -161,7 +164,9 @@ export function EquipesClient({
           );
         })}
         {teams.length === 0 && (
-          <p className="text-text-tertiary text-sm col-span-2">Nenhuma equipe criada ainda.</p>
+          <p className="text-text-tertiary text-sm md:col-span-2">
+            Nenhuma equipe criada ainda.
+          </p>
         )}
       </div>
 
