@@ -38,8 +38,8 @@ export function EquipeClient({
 
   return (
     <div className="p-4 md:p-10 flex flex-col gap-6 md:gap-8 max-w-6xl">
-      <div className="flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-3xl font-medium">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="flex items-center gap-2 text-2xl md:text-3xl font-medium">
           <Users size={22} className="text-champagne" strokeWidth={1.5} />
           Equipe
         </h2>
@@ -53,7 +53,7 @@ export function EquipeClient({
       </div>
 
       {isAdmin && pendingMembers.length > 0 && (
-        <div className="border border-champagne/30 rounded-card bg-champagne/10 p-6 flex flex-col gap-4">
+        <div className="border border-champagne/30 rounded-card bg-champagne/10 p-4 md:p-6 flex flex-col gap-4">
           <p className="flex items-center gap-2 text-sm font-medium text-champagne">
             <UserCheck size={15} strokeWidth={1.5} />
             Contas aguardando aprovação ({pendingMembers.length})
@@ -63,19 +63,19 @@ export function EquipeClient({
             {pendingMembers.map((member) => (
               <div
                 key={member.id}
-                className="flex items-center justify-between border border-line rounded-card bg-card px-4 py-3"
+                className="flex items-center justify-between gap-3 border border-line rounded-card bg-card px-4 py-3"
               >
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-medium">{member.name}</p>
                   {member.email && (
-                    <p className="text-xs text-text-tertiary">{member.email}</p>
+                    <p className="text-xs text-text-tertiary break-all">{member.email}</p>
                   )}
                 </div>
                 <button
                   type="button"
                   onClick={() => handleApprove(member.id)}
                   disabled={approvingId === member.id}
-                  className="text-xs bg-champagne text-black font-medium px-3 py-1.5 rounded-card hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
+                  className="shrink-0 text-xs bg-champagne text-black font-medium px-3 py-1.5 rounded-card hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
                 >
                   {approvingId === member.id ? "Aprovando..." : "Aprovar"}
                 </button>
@@ -85,28 +85,28 @@ export function EquipeClient({
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {approvedMembers.map((member) => {
           const memberRoster = roster.filter((r) => r.team_member_id === member.id);
 
           return (
             <div
               key={member.id}
-              className="border border-line rounded-card bg-card p-6 flex flex-col gap-4"
+              className="min-w-0 border border-line rounded-card bg-card p-5 md:p-6 flex flex-col gap-4"
             >
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-full bg-card-alt border border-line flex items-center justify-center text-champagne shrink-0">
                   {member.name.charAt(0)}
                 </div>
-                <div>
-                  <p className="font-medium">{member.name}</p>
+                <div className="min-w-0">
+                  <p className="font-medium break-words">{member.name}</p>
                 </div>
               </div>
 
               {member.email && (
-                <div className="flex items-center gap-2 text-xs text-text-tertiary">
-                  <Mail size={13} strokeWidth={1.5} />
-                  {member.email}
+                <div className="flex items-start gap-2 text-xs text-text-tertiary min-w-0">
+                  <Mail size={13} strokeWidth={1.5} className="mt-0.5 shrink-0" />
+                  <span className="break-all">{member.email}</span>
                 </div>
               )}
 
@@ -119,7 +119,10 @@ export function EquipeClient({
                   {memberRoster.map((entry) => {
                     const team = teamById.get(entry.team_id);
                     return (
-                      <div key={entry.id} className="flex items-center gap-2 text-sm">
+                      <div
+                        key={entry.id}
+                        className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm"
+                      >
                         <span className="text-text-secondary">{team?.name ?? "—"}</span>
                         <span className="text-text-tertiary">·</span>
                         <span className="text-champagne text-xs">{entry.role}</span>
