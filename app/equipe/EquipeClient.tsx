@@ -37,7 +37,7 @@ export function EquipeClient({
   }
 
   return (
-    <div className="p-10 flex flex-col gap-8 max-w-6xl">
+    <div className="p-4 md:p-10 flex flex-col gap-6 md:gap-8 max-w-6xl">
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-3xl font-medium">
           <Users size={22} className="text-champagne" strokeWidth={1.5} />
