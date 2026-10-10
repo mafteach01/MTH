@@ -139,6 +139,15 @@ function ddmmFromISO(iso: string) {
   const [, m, d] = iso.split("-");
   return `${d}/${m}`;
 }
+const planLabelRegex = /^(Segunda|Terça|Quarta|Quinta|Sexta|Sábado|Domingo|Total):/;
+
+function splitPlan(plan: string | null) {
+  if (!plan) return [];
+  return plan
+    .split(/\s*(?=(?:Segunda|Terça|Quarta|Quinta|Sexta|Sábado|Domingo|Total):)/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
 
 type Tab = "geral" | "planejamento" | "calendario";
 
@@ -975,7 +984,32 @@ export function ClientDetail({
                   </div>
                 </div>
               ) : (
-                <p className="text-text leading-relaxed">{client.plan || "—"}</p>
+                <>
+                  {client.plan ? (
+                    <div className="flex flex-col gap-3">
+                      {splitPlan(client.plan).map((part, i) => {
+                        const hasLabel = planLabelRegex.test(part);
+                        const idx = part.indexOf(":");
+                        return (
+                          <p key={i} className="text-text leading-relaxed whitespace-pre-wrap">
+                            {hasLabel ? (
+                              <>
+                                <span className="text-champagne font-medium">
+                                  {part.slice(0, idx + 1)}
+                                </span>
+                                {part.slice(idx + 1)}
+                              </>
+                            ) : (
+                              part
+                            )}
+                          </p>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-text">—</p>
+                  )}
+                </>
               )}
             </div>
 
