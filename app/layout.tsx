@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "./components/AppShell";
@@ -11,12 +11,24 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Mafteach — Painel",
   description: "Sistema de administração de clientes da Mafteach",
+  appleWebApp: {
+    capable: true,
+    title: "MT",
+    statusBarStyle: "black",
+  },
+  icons: {
+    apple: "/icon-192.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#080808",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="pt-BR" className={`${inter.variable} h-full antialiased`}>
-            <body className="min-h-full flex bg-bg text-text font-sans">
+      <body className="min-h-full flex bg-bg text-text font-sans">
         <AppShell>{children}</AppShell>
       </body>
     </html>
