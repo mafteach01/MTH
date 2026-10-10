@@ -18,7 +18,7 @@ type Event = {
   id: string;
   title: string;
   status: ContentStatus;
-    date: string; // formato "dd/mm"
+  date: string; // formato "dd/mm"
   clientId: string;
   clientName: string;
 };
@@ -43,10 +43,21 @@ export function CalendarioClient({ events }: { events: Event[] }) {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
   const cells = getMonthGrid(year, month);
 
+  function eventsOfDay(day: number) {
+    return events.filter((e) => {
+      const [eDay, eMonth] = e.date.split("/").map(Number);
+      return eMonth - 1 === month && eDay === day;
+    });
+  }
+
+  const selectedEvents = selectedDay !== null ? eventsOfDay(selectedDay) : [];
+
   function goPrev() {
+    setSelectedDay(null);
     if (month === 0) {
       setMonth(11);
       setYear((y) => y - 1);
@@ -56,6 +67,7 @@ export function CalendarioClient({ events }: { events: Event[] }) {
   }
 
   function goNext() {
+    setSelectedDay(null);
     if (month === 11) {
       setMonth(0);
       setYear((y) => y + 1);
@@ -64,14 +76,32 @@ export function CalendarioClient({ events }: { events: Event[] }) {
     }
   }
 
+  function renderEvent(event: Event, full = false) {
+    return (
+      <Link
+        key={event.id}
+        href={`/clientes/${event.clientId}`}
+        className="bg-card-alt border border-line rounded-badge px-2 py-1 hover:border-champagne transition-colors"
+      >
+        <p className={`text-[11px] text-text-secondary ${full ? "" : "truncate"}`}>
+          {event.clientName}
+        </p>
+        <p className={`text-[11px] text-text ${full ? "break-words" : "truncate"}`}>
+          {event.title}
+        </p>
+        <p className="text-[10px] text-champagne">{statusLabels[event.status]}</p>
+      </Link>
+    );
+  }
+
   return (
-    <div className="p-10 flex flex-col gap-8 max-w-6xl">
-      <div className="flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-3xl font-medium">
+    <div className="p-4 md:p-10 flex flex-col gap-6 md:gap-8 max-w-6xl">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="flex items-center gap-2 text-2xl md:text-3xl font-medium">
           <CalendarDays size={22} className="text-champagne" strokeWidth={1.5} />
           Calendário
         </h2>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           <button
             onClick={goPrev}
             className="w-8 h-8 flex items-center justify-center rounded-card border border-line hover:border-line-strong transition-colors"
@@ -95,7 +125,7 @@ export function CalendarioClient({ events }: { events: Event[] }) {
           {weekDays.map((day) => (
             <div
               key={day}
-              className="p-3 text-xs text-text-tertiary uppercase tracking-wide text-center"
+              className="py-2 md:p-3 text-[10px] md:text-xs text-text-tertiary uppercase tracking-wide text-center"
             >
               {day}
             </div>
@@ -104,37 +134,37 @@ export function CalendarioClient({ events }: { events: Event[] }) {
 
         <div className="grid grid-cols-7">
           {cells.map((day, i) => {
-                        const dayEvents =
-              day !== null
-                ? events.filter((e) => {
-                    const [eDay, eMonth] = e.date.split("/").map(Number);
-                    return eMonth - 1 === month && eDay === day;
-                  })
-                : [];
+            const dayEvents = day !== null ? eventsOfDay(day) : [];
+            const isSelected = day !== null && day === selectedDay;
             return (
               <div
                 key={i}
-                className="min-h-28 border-b border-r border-line p-2 flex flex-col gap-1 last:border-r-0"
+                onClick={() => day !== null && setSelectedDay(isSelected ? null : day)}
+                className={`min-h-16 md:min-h-28 min-w-0 border-b border-line p-1 md:p-2 flex flex-col items-center md:items-stretch gap-1 ${
+                  i % 7 !== 6 ? "border-r" : ""
+                } ${day !== null ? "cursor-pointer md:cursor-default" : ""} ${
+                  isSelected ? "bg-card-alt md:bg-transparent" : ""
+                }`}
               >
                 {day !== null && (
                   <>
                     <span className="text-xs text-text-tertiary">{day}</span>
-                    <div className="flex flex-col gap-1">
-                      {dayEvents.map((event) => (
-                        <Link
-                          key={event.id}
-                          href={`/clientes/${event.clientId}`}
-                          className="bg-card-alt border border-line rounded-badge px-2 py-1 hover:border-champagne transition-colors"
-                        >
-                          <p className="text-[11px] text-text-secondary truncate">
-                            {event.clientName}
-                          </p>
-                          <p className="text-[11px] text-text truncate">{event.title}</p>
-                          <p className="text-[10px] text-champagne">
-                            {statusLabels[event.status]}
-                          </p>
-                        </Link>
+
+                    {/* Celular: bolinhas */}
+                    <div className="flex md:hidden flex-wrap justify-center gap-0.5">
+                      {dayEvents.slice(0, 3).map((e) => (
+                        <span key={e.id} className="w-1.5 h-1.5 rounded-full bg-champagne" />
                       ))}
+                      {dayEvents.length > 3 && (
+                        <span className="text-[9px] leading-none text-champagne">
+                          +{dayEvents.length - 3}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Computador: cards */}
+                    <div className="hidden md:flex flex-col gap-1">
+                      {dayEvents.map((event) => renderEvent(event))}
                     </div>
                   </>
                 )}
@@ -143,6 +173,24 @@ export function CalendarioClient({ events }: { events: Event[] }) {
           })}
         </div>
       </div>
+
+      {/* Celular: lista do dia */}
+      {selectedDay !== null ? (
+        <div className="md:hidden border border-line rounded-card bg-card p-4 flex flex-col gap-2">
+          <p className="text-xs text-text-tertiary uppercase tracking-wide">
+            Dia {selectedDay} de {monthNames[month]}
+          </p>
+          {selectedEvents.length === 0 ? (
+            <p className="text-sm text-text-tertiary">Nada agendado nesse dia.</p>
+          ) : (
+            selectedEvents.map((event) => renderEvent(event, true))
+          )}
+        </div>
+      ) : (
+        <p className="md:hidden text-xs text-text-tertiary text-center">
+          Toque num dia pra ver os conteúdos.
+        </p>
+      )}
     </div>
   );
 }
