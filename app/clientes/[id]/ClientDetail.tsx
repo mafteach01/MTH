@@ -37,6 +37,7 @@ export type ContentStatus = "ideia" | "roteiro" | "producao" | "aprovacao" | "pu
 export type Funil = "Topo" | "Meio" | "Final" | null;
 export type TipoConteudo = "Reels" | "Card" | "Carrossel" | "Story" | null;
 
+export type ChecklistEntry = { id: string; text: string; done: boolean };
 export type ContentItem = {
   id: string;
   title: string;
@@ -46,6 +47,9 @@ export type ContentItem = {
   tipo_conteudo: TipoConteudo;
   roteiro: string | null;
   scheduled_date: string | null;
+  legenda?: string | null;
+  audio?: string | null;
+  checklist?: ChecklistEntry[] | null;
 };
 
 type Note = {
@@ -366,6 +370,9 @@ export function ClientDetail({
       tipo_conteudo: data.tipo_conteudo,
       roteiro: data.roteiro,
       scheduled_date: data.scheduled_date,
+      legenda: data.legenda ?? null,
+      audio: data.audio ?? null,
+      checklist: data.checklist ?? [],
     };
     setItems((current) => [...current, newItem]);
     setExpandedItemId(newItem.id);
