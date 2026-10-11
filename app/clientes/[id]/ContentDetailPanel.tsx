@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { X, Trash2, FileText } from "lucide-react";
-import type { ContentItem, ContentStatus, Funil, TipoConteudo } from "./ClientDetail";
+import { X, Trash2, FileText, Copy, Check } from "lucide-react";
+import type { ContentItem, ContentStatus, Funil, TipoConteudo, ChecklistEntry } from "./ClientDetail";
 import { statusLabels } from "./ClientDetail";
+import { AnexosConteudo } from "./AnexosConteudo";
 
 const statusOrder: ContentStatus[] = ["ideia", "roteiro", "producao", "aprovacao", "publicado"];
 const funilOptions: Exclude<Funil, null>[] = ["Topo", "Meio", "Final"];
@@ -13,6 +14,7 @@ const funilLabels: Record<Exclude<Funil, null>, string> = {
   Final: "Final - Fechamento",
 };
 const tipoOptions: Exclude<TipoConteudo, null>[] = ["Reels", "Card", "Carrossel", "Story"];
+const checklistPadrao = ["Gravar", "Editar", "Legenda pronta", "Aprovado", "Postado"];
 
 export function ContentDetailPanel({
   item,
@@ -27,6 +29,32 @@ export function ContentDetailPanel({
 }) {
   const [titleDraft, setTitleDraft] = useState(item.title);
   const [roteiroDraft, setRoteiroDraft] = useState(item.roteiro ?? "");
+  const [legendaDraft, setLegendaDraft] = useState(item.legenda ?? "");
+  const [audioDraft, setAudioDraft] = useState(item.audio ?? "");
+  const [checklist, setChecklist] = useState<ChecklistEntry[]>(item.checklist ?? []);
+  const [novoItem, setNovoItem] = useState("");
+  const [copiado, setCopiado] = useState(false);
+
+  function saveChecklist(next: ChecklistEntry[]) {
+    setChecklist(next);
+    onFieldChange(item.id, "checklist", next);
+  }
+
+  function addChecklistItem(text: string) {
+    const t = text.trim();
+    if (!t) return;
+    saveChecklist([...checklist, { id: crypto.randomUUID(), text: t, done: false }]);
+  }
+
+  async function copiarLegenda() {
+    try {
+      await navigator.clipboard.writeText(legendaDraft);
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 1500);
+    } catch {}
+  }
+
+  const feitos = checklist.filter((c) => c.done).length;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -136,7 +164,7 @@ export function ContentDetailPanel({
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5 flex-1">
+          <div className="flex flex-col gap-1.5">
             <label className="text-xs text-text-secondary">Roteiro</label>
             <textarea
               value={roteiroDraft}
@@ -147,9 +175,124 @@ export function ContentDetailPanel({
                 }
               }}
               placeholder="Escreva o roteiro, ideias, referências..."
-              className="bg-card-alt border border-line rounded-card p-3 text-sm outline-none focus:border-champagne transition-colors resize-none flex-1 min-h-[240px] placeholder:text-text-tertiary"
+              className="bg-card-alt border border-line rounded-card p-3 text-sm outline-none focus:border-champagne transition-colors resize-none min-h-[240px] placeholder:text-text-tertiary"
             />
           </div>
+
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs text-text-secondary">Legenda</label>
+              <button
+                onClick={copiarLegenda}
+                disabled={!legendaDraft}
+                className="flex items-center gap-1 text-[11px] text-text-tertiary hover:text-champagne transition-colors disabled:opacity-40"
+              >
+                {copiado ? (
+                  <Check size={12} strokeWidth={1.5} />
+                ) : (
+                  <Copy size={12} strokeWidth={1.5} />
+                )}
+                {copiado ? "Copiado" : "Copiar"}
+              </button>
+            </div>
+            <textarea
+              value={legendaDraft}
+              onChange={(e) => setLegendaDraft(e.target.value)}
+              onBlur={() => {
+                if (legendaDraft !== (item.legenda ?? "")) {
+                  onFieldChange(item.id, "legenda", legendaDraft || null);
+                }
+              }}
+              placeholder="Legenda do post..."
+              className="bg-card-alt border border-line rounded-card p-3 text-sm outline-none focus:border-champagne transition-colors resize-none min-h-[120px] placeholder:text-text-tertiary"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs text-text-secondary">Áudio</label>
+            <input
+              value={audioDraft}
+              onChange={(e) => setAudioDraft(e.target.value)}
+              onBlur={() => {
+                if (audioDraft !== (item.audio ?? "")) {
+                  onFieldChange(item.id, "audio", audioDraft || null);
+                }
+              }}
+              placeholder="Nome da música ou link do áudio"
+              className="bg-card-alt border border-line rounded-card px-3 py-2 text-sm outline-none focus:border-champagne transition-colors placeholder:text-text-tertiary"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs text-text-secondary">Checklist</label>
+              {checklist.length > 0 && (
+                <span className="text-[11px] text-text-tertiary">
+                  {feitos}/{checklist.length}
+                </span>
+              )}
+            </div>
+
+            {checklist.map((c) => (
+              <div key={c.id} className="flex items-center gap-2.5 text-sm">
+                <input
+                  type="checkbox"
+                  checked={c.done}
+                  onChange={() =>
+                    saveChecklist(
+                      checklist.map((x) => (x.id === c.id ? { ...x, done: !x.done } : x))
+                    )
+                  }
+                  className="accent-[#D8C5A5] cursor-pointer"
+                />
+                <span
+                  className={`flex-1 min-w-0 ${
+                    c.done ? "line-through text-text-tertiary" : ""
+                  }`}
+                >
+                  {c.text}
+                </span>
+                <button
+                  onClick={() => saveChecklist(checklist.filter((x) => x.id !== c.id))}
+                  className="text-text-tertiary hover:text-red-400 transition-colors"
+                >
+                  <X size={14} strokeWidth={1.5} />
+                </button>
+              </div>
+            ))}
+
+            <input
+              value={novoItem}
+              onChange={(e) => setNovoItem(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  addChecklistItem(novoItem);
+                  setNovoItem("");
+                }
+              }}
+              placeholder="Adicionar item e apertar Enter"
+              className="bg-card-alt border border-line rounded-card px-3 py-2 text-sm outline-none focus:border-champagne transition-colors placeholder:text-text-tertiary"
+            />
+
+            {checklist.length === 0 && (
+              <button
+                onClick={() =>
+                  saveChecklist(
+                    checklistPadrao.map((t) => ({
+                      id: crypto.randomUUID(),
+                      text: t,
+                      done: false,
+                    }))
+                  )
+                }
+                className="self-start text-[11px] text-text-tertiary hover:text-champagne transition-colors"
+              >
+                Usar checklist padrão (Gravar, Editar, Legenda, Aprovado, Postado)
+              </button>
+            )}
+          </div>
+
+          <AnexosConteudo itemId={item.id} />
         </div>
       </div>
     </div>
