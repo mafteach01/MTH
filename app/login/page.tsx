@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -80,7 +80,7 @@ export default function LoginPage() {
       setErrorMsg(
         error.message.includes("already registered")
           ? "Já existe uma conta com esse e-mail."
-          : "Não foi possível criar a conta. Tente novamente."
+          : "Não foi possível criar a conta: " + error.message
       );
       return;
     }
