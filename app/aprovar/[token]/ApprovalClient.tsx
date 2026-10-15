@@ -1,14 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Check, MessageSquare, Pencil, CalendarDays } from "lucide-react";
+import { Check, MessageSquare, Pencil, CalendarDays, Paperclip } from "lucide-react";
 import { createClient } from "../../lib/supabase/client";
+
+export type ApprovalAttachment = {
+  id: string;
+  name: string;
+  url: string | null;
+  file_path: string | null;
+};
 
 export type ApprovalItem = {
   id: string;
   title: string;
   tipo_conteudo: string | null;
+  roteiro: string | null;
   legenda: string | null;
+  attachments: ApprovalAttachment[];
   scheduled_date: string | null;
   scheduled_time: string | null;
   approval_status: "aprovado" | "ajuste" | null;
@@ -37,6 +46,25 @@ export function ApprovalClient({
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [sending, setSending] = useState<string | null>(null);
   const [sentComment, setSentComment] = useState<string | null>(null);
+
+  async function openAttachment(a: ApprovalAttachment) {
+    if (a.url) {
+      window.open(a.url, "_blank", "noopener,noreferrer");
+      return;
+    }
+    if (!a.file_path) return;
+    const w = window.open("", "_blank");
+    const { data, error } = await supabase.storage
+      .from("mt-anexos")
+      .createSignedUrl(a.file_path, 300);
+    if (error || !data) {
+      w?.close();
+      alert("Não foi possível abrir o arquivo.");
+      return;
+    }
+    if (w) w.location.href = data.signedUrl;
+    else window.location.href = data.signedUrl;
+  }
 
   async function submit(item: ApprovalItem, kind: Kind) {
     const comment = (drafts[item.id] ?? "").trim();
@@ -128,6 +156,31 @@ export function ApprovalClient({
                   </p>
                 )}
               </div>
+
+              {item.roteiro && (
+                <div className="flex flex-col gap-1.5">
+                  <p className="text-xs text-text-secondary">Roteiro</p>
+                  <p className="text-sm bg-card-alt border border-line rounded-card p-3 whitespace-pre-wrap break-words">
+                    {item.roteiro}
+                  </p>
+                </div>
+              )}
+
+              {item.attachments.length > 0 && (
+                <div className="flex flex-col gap-1.5">
+                  <p className="text-xs text-text-secondary">Arquivos</p>
+                  {item.attachments.map((a) => (
+                    <button
+                      key={a.id}
+                      onClick={() => openAttachment(a)}
+                      className="flex items-center gap-2 text-sm bg-card-alt border border-line rounded-card px-3 py-2 text-left hover:border-champagne transition-colors"
+                    >
+                      <Paperclip size={14} strokeWidth={1.5} className="text-text-tertiary shrink-0" />
+                      <span className="truncate">{a.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {item.legenda && (
                 <div className="flex flex-col gap-1.5">

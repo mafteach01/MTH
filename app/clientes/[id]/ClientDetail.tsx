@@ -54,6 +54,10 @@ export type ContentItem = {
   scheduled_time?: string | null;
   published_at?: string | null;
   approval_status?: "aprovado" | "ajuste" | null;
+  metric_reach?: number | null;
+  metric_saves?: number | null;
+  metric_shares?: number | null;
+  metric_clicks?: number | null;
 };
 
 type Note = {
@@ -489,9 +493,16 @@ export function ClientDetail({
           </div>
           <p className="text-text-secondary text-sm mt-1">Último conteúdo: {client.last_content}</p>
         </div>
+        <Link
+          href={`/clientes/${client.id}/relatorio`}
+          className="ml-auto flex items-center gap-1.5 text-xs text-text-tertiary hover:text-champagne transition-colors"
+        >
+          <BarChart3 size={13} strokeWidth={1.5} />
+          Relatório
+        </Link>
         <button
           onClick={copyApprovalLink}
-          className="ml-auto flex items-center gap-1.5 text-xs text-text-tertiary hover:text-champagne transition-colors"
+          className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-champagne transition-colors"
         >
           {linkCopied ? (
             <Check size={13} strokeWidth={1.5} />

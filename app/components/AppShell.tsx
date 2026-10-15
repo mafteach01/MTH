@@ -9,7 +9,9 @@ const noShellRoutes = ["/login"];
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const hideShell =
-    noShellRoutes.includes(pathname) || pathname.startsWith("/aprovar/");
+    noShellRoutes.includes(pathname) ||
+    pathname.startsWith("/aprovar/") ||
+    (pathname.startsWith("/clientes/") && pathname.endsWith("/relatorio"));
 
     if (hideShell) {
     return <div className="flex-1 w-full">{children}</div>;

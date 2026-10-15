@@ -17,6 +17,14 @@ const funilLabels: Record<Exclude<Funil, null>, string> = {
 const tipoOptions: Exclude<TipoConteudo, null>[] = ["Reels", "Card", "Carrossel", "Story"];
 const checklistPadrao = ["Gravar", "Editar", "Legenda pronta", "Aprovado", "Postado"];
 
+type MetricKey = "metric_reach" | "metric_saves" | "metric_shares" | "metric_clicks";
+const metricFields: { key: MetricKey; label: string }[] = [
+  { key: "metric_reach", label: "Alcance" },
+  { key: "metric_saves", label: "Salvamentos" },
+  { key: "metric_shares", label: "Compartilhamentos" },
+  { key: "metric_clicks", label: "Cliques" },
+];
+
 export function ContentDetailPanel({
   item,
   onClose,
@@ -33,6 +41,12 @@ export function ContentDetailPanel({
   const [legendaDraft, setLegendaDraft] = useState(item.legenda ?? "");
   const [audioDraft, setAudioDraft] = useState(item.audio ?? "");
   const [publishedUrlDraft, setPublishedUrlDraft] = useState(item.published_url ?? "");
+  const [metricDrafts, setMetricDrafts] = useState<Record<MetricKey, string>>({
+    metric_reach: String(item.metric_reach ?? ""),
+    metric_saves: String(item.metric_saves ?? ""),
+    metric_shares: String(item.metric_shares ?? ""),
+    metric_clicks: String(item.metric_clicks ?? ""),
+  });
   const [supabase] = useState(() => createClient());
   const [feedback, setFeedback] = useState<
     { id: string; kind: string; comment: string | null; created_at: string }[]
@@ -354,7 +368,42 @@ export function ContentDetailPanel({
             )}
           </div>
 
-{(item.approval_status || feedback.length > 0) && (
+          {item.status === "publicado" && (
+            <div className="flex flex-col gap-3 border border-line rounded-card p-4">
+              <label className="text-xs text-text-secondary">Métricas</label>
+              <div className="grid grid-cols-2 gap-4">
+                {metricFields.map(({ key, label }) => (
+                  <div key={key} className="flex flex-col gap-1.5">
+                    <label className="text-xs text-text-tertiary">{label}</label>
+                    <input
+                      type="number"
+                      min={0}
+                      inputMode="numeric"
+                      value={metricDrafts[key]}
+                      onChange={(e) =>
+                        setMetricDrafts((d) => ({ ...d, [key]: e.target.value }))
+                      }
+                      onBlur={() => {
+                        const raw = metricDrafts[key].trim();
+                        const parsed = Number(raw);
+                        const next =
+                          raw === "" || Number.isNaN(parsed)
+                            ? null
+                            : Math.max(0, Math.round(parsed));
+                        if (next !== (item[key] ?? null)) {
+                          onFieldChange(item.id, key, next);
+                        }
+                      }}
+                      placeholder="0"
+                      className="bg-card-alt border border-line rounded-card px-3 py-2 text-sm outline-none focus:border-champagne transition-colors placeholder:text-text-tertiary"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(item.approval_status || feedback.length > 0) && (
             <div className="flex flex-col gap-2 border border-line rounded-card p-4">
               <div className="flex items-center justify-between">
                 <label className="text-xs text-text-secondary">Retorno do cliente</label>
