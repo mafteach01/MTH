@@ -153,9 +153,10 @@ const saudacao =
               <Zap size={16} className="text-champagne" strokeWidth={1.5} />
               Atividade recente
             </h3>
-            <a href="#" className="text-sm text-text-secondary flex items-center gap-1 hover:text-champagne">
-              Ver todos <ArrowRight size={14} />
-            </a>
+<Link href="/calendario" className="text-sm text-text-secondary flex items-center gap-1 hover:text-champagne">
+  Ver todos <ArrowRight size={14} />
+</Link>
+
           </div>
           <div className="flex flex-col divide-y divide-line">
             {recentItems.map(({ id, title, meta, date, status }) => (
