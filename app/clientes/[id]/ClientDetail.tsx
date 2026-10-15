@@ -28,12 +28,14 @@ import {
   Link2,
   Check,
   Compass,
+  Palette,
 } from "lucide-react";
 import { createClient } from "../../lib/supabase/client";
 import { ContentTable } from "./ContentTable";
 import { ContentDetailPanel } from "./ContentDetailPanel";
 import { CalendarioEditorial } from "./CalendarioEditorial";
 import { EstrategiaTab, type StrategyRow } from "./EstrategiaTab";
+import { IdentidadeTab, type BrandRow } from "./IdentidadeTab";
 
 export type ContentStatus = "ideia" | "roteiro" | "producao" | "aprovacao" | "publicado";
 export type Funil = "Topo" | "Meio" | "Final" | null;
@@ -165,7 +167,7 @@ function splitPlan(plan: string | null) {
     .filter(Boolean);
 }
 
-type Tab = "geral" | "planejamento" | "estrategia" | "calendario";
+type Tab = "geral" | "planejamento" | "estrategia" | "identidade" | "calendario";
 
 export function ClientDetail({
   client: initialClient,
@@ -175,6 +177,7 @@ export function ClientDetail({
   teams,
   roster,
   strategy,
+  brand,
 }: {
   client: Client;
   initialItems: ContentItem[];
@@ -183,6 +186,7 @@ export function ClientDetail({
   teams: Team[];
   roster: RosterEntry[];
   strategy: StrategyRow | null;
+  brand: BrandRow | null;
 }) {
   const router = useRouter();
   const [supabase] = useState(() => createClient());
@@ -574,6 +578,17 @@ export function ClientDetail({
         >
           <Compass size={14} strokeWidth={1.5} />
           Estratégia
+        </button>
+        <button
+          onClick={() => setActiveTab("identidade")}
+          className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
+            activeTab === "identidade"
+              ? "border-champagne text-text"
+              : "border-transparent text-text-tertiary hover:text-text-secondary"
+          }`}
+        >
+          <Palette size={14} strokeWidth={1.5} />
+          Identidade
         </button>
         <button
           onClick={() => setActiveTab("calendario")}
@@ -1095,6 +1110,10 @@ export function ClientDetail({
 
       {activeTab === "estrategia" && (
         <EstrategiaTab clientId={client.id} initial={strategy} />
+      )}
+
+      {activeTab === "identidade" && (
+        <IdentidadeTab clientId={client.id} initial={brand} />
       )}
 
       {activeTab === "calendario" && (
