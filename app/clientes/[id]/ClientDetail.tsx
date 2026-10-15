@@ -509,9 +509,10 @@ export function ClientDetail({
           </div>
           <p className="text-text-secondary text-sm mt-1">Último conteúdo: {client.last_content}</p>
         </div>
+        <div className="basis-full md:basis-auto md:ml-auto flex flex-wrap items-center gap-x-4 gap-y-2">
         <Link
           href={`/clientes/${client.id}/relatorio`}
-          className="ml-auto flex items-center gap-1.5 text-xs text-text-tertiary hover:text-champagne transition-colors"
+          className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-champagne transition-colors"
         >
           <BarChart3 size={13} strokeWidth={1.5} />
           Relatório
@@ -534,6 +535,7 @@ export function ClientDetail({
           <Trash2 size={13} strokeWidth={1.5} />
           Apagar cliente
         </button>
+        </div>
       </div>
 
       {/* Abas */}
