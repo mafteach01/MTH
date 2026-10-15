@@ -19,8 +19,6 @@ import {
   IdCard,
   Briefcase,
   Lock as LockIcon,
-  Eye,
-  EyeOff,
   UserCheck,
   AtSign,
   Shield,
@@ -92,8 +90,6 @@ type Client = {
   contract_status: string | null;
   management_level: string | null;
   instagram_handle: string | null;
-  instagram_login: string | null;
-  instagram_password: string | null;
   responsible_id: string | null;
   team_id: string | null;
 };
@@ -163,7 +159,6 @@ export function ClientDetail({
   team,
   teams,
   roster,
-  isAdmin,
 }: {
   client: Client;
   initialItems: ContentItem[];
@@ -171,7 +166,6 @@ export function ClientDetail({
   team: TeamMember[];
   teams: Team[];
   roster: RosterEntry[];
-  isAdmin: boolean;
 }) {
   const router = useRouter();
   const [supabase] = useState(() => createClient());
@@ -196,7 +190,6 @@ export function ClientDetail({
 
   // Edição dos dados do cliente
   const [editingInfo, setEditingInfo] = useState(false);
-  const [showCredentials, setShowCredentials] = useState(false);
   const [documentDraft, setDocumentDraft] = useState(client.document ?? "");
   const [emailDraft, setEmailDraft] = useState(client.email ?? "");
   const [phoneDraft, setPhoneDraft] = useState(client.phone ?? "");
@@ -206,8 +199,6 @@ export function ClientDetail({
   const [contractStatusDraft, setContractStatusDraft] = useState(client.contract_status ?? "Ativo");
   const [managementLevelDraft, setManagementLevelDraft] = useState(client.management_level ?? "total");
   const [instagramHandleDraft, setInstagramHandleDraft] = useState(client.instagram_handle ?? "");
-  const [instagramLoginDraft, setInstagramLoginDraft] = useState(client.instagram_login ?? "");
-  const [instagramPasswordDraft, setInstagramPasswordDraft] = useState(client.instagram_password ?? "");
   const [responsibleIdDraft, setResponsibleIdDraft] = useState(client.responsible_id ?? "");
   const [teamIdDraft, setTeamIdDraft] = useState(client.team_id ?? "");
 
@@ -294,8 +285,6 @@ export function ClientDetail({
     setContractStatusDraft(client.contract_status ?? "Ativo");
     setManagementLevelDraft(client.management_level ?? "total");
     setInstagramHandleDraft(client.instagram_handle ?? "");
-    setInstagramLoginDraft(client.instagram_login ?? "");
-    setInstagramPasswordDraft(client.instagram_password ?? "");
     setResponsibleIdDraft(client.responsible_id ?? "");
     setTeamIdDraft(client.team_id ?? "");
     setEditingInfo(true);
@@ -314,12 +303,6 @@ export function ClientDetail({
       contract_status: contractStatusDraft,
       management_level: managementLevelDraft,
       instagram_handle: instagramHandleDraft || null,
-      ...(isAdmin
-        ? {
-            instagram_login: instagramLoginDraft || null,
-            instagram_password: instagramPasswordDraft || null,
-          }
-        : {}),
       responsible_id: responsibleIdDraft || null,
       team_id: teamIdDraft || null,
     };
@@ -693,29 +676,6 @@ export function ClientDetail({
                       </div>
                     </div>
 
-                    {managementLevelDraft === "total" && isAdmin && (
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-xs text-text-secondary">Login</label>
-                          <input
-                            value={instagramLoginDraft}
-                            onChange={(e) => setInstagramLoginDraft(e.target.value)}
-                            autoComplete="off"
-                            className="bg-card-alt border border-line rounded-card px-3 py-2 text-sm outline-none focus:border-champagne transition-colors"
-                          />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-xs text-text-secondary">Senha</label>
-                          <input
-                            type="password"
-                            value={instagramPasswordDraft}
-                            onChange={(e) => setInstagramPasswordDraft(e.target.value)}
-                            autoComplete="new-password"
-                            className="bg-card-alt border border-line rounded-card px-3 py-2 text-sm outline-none focus:border-champagne transition-colors"
-                          />
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
 
@@ -823,30 +783,6 @@ export function ClientDetail({
                     </div>
                   </div>
 
-                  {(client.instagram_login || client.instagram_password) && (
-                    <div className="bg-card-alt border border-line rounded-card p-3 flex items-center justify-between text-sm">
-                      <div>
-                        <p className="text-xs text-text-tertiary mb-0.5">Credenciais salvas</p>
-                        {showCredentials ? (
-                          <p>
-                            {client.instagram_login || "—"} · {client.instagram_password || "—"}
-                          </p>
-                        ) : (
-                          <p className="tracking-widest">••••••••</p>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => setShowCredentials((v) => !v)}
-                        className="text-text-tertiary hover:text-champagne transition-colors"
-                      >
-                        {showCredentials ? (
-                          <EyeOff size={15} strokeWidth={1.5} />
-                        ) : (
-                          <Eye size={15} strokeWidth={1.5} />
-                        )}
-                      </button>
-                    </div>
-                  )}
                 </div>
               </div>
             )}

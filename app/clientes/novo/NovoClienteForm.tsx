@@ -11,7 +11,7 @@ type NivelGestao = "total" | "aprovacao" | "parcial";
 type TeamMember = { id: string; name: string };
 type Team = { id: string; name: string };
 
-export function NovoClienteForm({ team, teams, isAdmin }: { team: TeamMember[]; teams: Team[]; isAdmin: boolean }) {
+export function NovoClienteForm({ team, teams }: { team: TeamMember[]; teams: Team[] }) {
   const router = useRouter();
   const [supabase] = useState(() => createClient());
 
@@ -29,8 +29,6 @@ export function NovoClienteForm({ team, teams, isAdmin }: { team: TeamMember[]; 
   const [contractStart, setContractStart] = useState("");
   const [contractStatus, setContractStatus] = useState("Ativo");
   const [instagramHandle, setInstagramHandle] = useState("");
-  const [instagramLogin, setInstagramLogin] = useState("");
-  const [instagramPassword, setInstagramPassword] = useState("");
   const [objective, setObjective] = useState("");
   const [responsibleId, setResponsibleId] = useState(team[0]?.id ?? "");
   const [teamId, setTeamId] = useState("");
@@ -61,8 +59,6 @@ export function NovoClienteForm({ team, teams, isAdmin }: { team: TeamMember[]; 
         contract_status: contractStatus,
         management_level: nivelGestao,
         instagram_handle: instagramHandle || null,
-                instagram_login: nivelGestao === "total" && isAdmin ? instagramLogin || null : null,
-        instagram_password: nivelGestao === "total" && isAdmin ? instagramPassword || null : null,
         objective: objective || null,
         responsible_id: responsibleId || null,
         team_id: teamId || null,
@@ -269,33 +265,6 @@ export function NovoClienteForm({ team, teams, isAdmin }: { team: TeamMember[]; 
               className="bg-card-alt border border-line rounded-card px-3 py-2.5 text-sm outline-none focus:border-champagne transition-colors placeholder:text-text-tertiary"
             />
           </div>
-
-          {nivelGestao === "total" && (
-            <div className="grid grid-cols-2 gap-4 border-t border-line pt-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-text-secondary">Login</label>
-                <input
-                  type="text"
-                  value={instagramLogin}
-                  onChange={(e) => setInstagramLogin(e.target.value)}
-                  placeholder="E-mail de acesso"
-                  autoComplete="off"
-                  className="bg-card-alt border border-line rounded-card px-3 py-2.5 text-sm outline-none focus:border-champagne transition-colors placeholder:text-text-tertiary"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-text-secondary">Senha</label>
-                <input
-                  type="password"
-                  value={instagramPassword}
-                  onChange={(e) => setInstagramPassword(e.target.value)}
-                  placeholder="••••••••"
-                  autoComplete="new-password"
-                  className="bg-card-alt border border-line rounded-card px-3 py-2.5 text-sm outline-none focus:border-champagne transition-colors placeholder:text-text-tertiary"
-                />
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Operacional */}
