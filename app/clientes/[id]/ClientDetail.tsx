@@ -25,6 +25,8 @@ import {
   LayoutGrid,
   ClipboardList,
   CalendarDays,
+  Link2,
+  Check,
 } from "lucide-react";
 import { createClient } from "../../lib/supabase/client";
 import { ContentTable } from "./ContentTable";
@@ -95,6 +97,7 @@ type Client = {
   instagram_handle: string | null;
   responsible_id: string | null;
   team_id: string | null;
+  approval_token: string;
 };
 
 const statusOrder: ContentStatus[] = ["ideia", "roteiro", "producao", "aprovacao", "publicado"];
@@ -180,6 +183,18 @@ export function ClientDetail({
   const [notes, setNotes] = useState<Note[]>(initialNotes);
 
   const [saving, setSaving] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  async function copyApprovalLink() {
+    const url = `${window.location.origin}/aprovar/${client.approval_token}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      alert("Não consegui copiar. Link: " + url);
+    }
+  }
 
   // Painel de detalhe de um item de conteúdo (abre pelo ícone de expandir na tabela)
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
@@ -474,8 +489,19 @@ export function ClientDetail({
           <p className="text-text-secondary text-sm mt-1">Último conteúdo: {client.last_content}</p>
         </div>
         <button
+          onClick={copyApprovalLink}
+          className="ml-auto flex items-center gap-1.5 text-xs text-text-tertiary hover:text-champagne transition-colors"
+        >
+          {linkCopied ? (
+            <Check size={13} strokeWidth={1.5} />
+          ) : (
+            <Link2 size={13} strokeWidth={1.5} />
+          )}
+          {linkCopied ? "Link copiado" : "Link de aprovação"}
+        </button>
+        <button
           onClick={deleteClient}
-          className="ml-auto flex items-center gap-1.5 text-xs text-text-tertiary hover:text-red-400 transition-colors"
+          className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-red-400 transition-colors"
         >
           <Trash2 size={13} strokeWidth={1.5} />
           Apagar cliente

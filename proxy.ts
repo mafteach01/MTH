@@ -5,6 +5,10 @@ const publicRoutes = ["/login"];
 const pendingRoute = "/aguardando-aprovacao";
 
 export async function proxy(request: NextRequest) {
+  if (request.nextUrl.pathname.startsWith("/aprovar/")) {
+    return NextResponse.next();
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(

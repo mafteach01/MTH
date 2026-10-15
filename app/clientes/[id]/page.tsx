@@ -14,7 +14,7 @@ export default async function ClienteDetalhePage({
   const { data: client, error: clientError } = await supabase
     .from("mt_clients")
     .select(
-      "id, name, objective, plan, status, last_content, person_type, document, email, phone, contract_value, due_day, contract_start, contract_status, management_level, instagram_handle, responsible_id, team_id"
+      "id, name, objective, plan, status, last_content, person_type, document, email, phone, contract_value, due_day, contract_start, contract_status, management_level, instagram_handle, responsible_id, team_id, approval_token"
     )
     .eq("id", id)
     .single();
