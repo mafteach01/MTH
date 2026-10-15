@@ -32,6 +32,19 @@ export default async function Home() {
     month: "long",
     year: "numeric",
   }).format(new Date());
+  const hora = Number(
+  new Intl.DateTimeFormat("pt-BR", {
+    hour: "numeric",
+    hour12: false,
+    timeZone: "America/Sao_Paulo",
+  }).format(new Date())
+);
+const saudacao =
+  hora >= 5 && hora < 12
+    ? "Bom dia"
+    : hora >= 12 && hora < 18
+    ? "Boa tarde"
+    : "Boa noite";
 
   // Contagem de clientes por status de produção
   const { count: countAtivo, error: errAtivo } = await supabase
@@ -110,7 +123,7 @@ export default async function Home() {
 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
 <h2 className="text-2xl md:text-3xl font-medium">Visão geral</h2>
-          <p className="text-text mt-2">Boa noite, equipe Mafteach.</p>
+          <p className="text-text mt-2">{saudacao}, equipe Mafteach.</p>
           <p className="text-text-secondary text-sm mt-1">
             Aqui você acompanha o andamento dos nossos clientes e conteúdos.
           </p>
