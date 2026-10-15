@@ -90,6 +90,14 @@ export function ApprovalClient({
 
     setDrafts((d) => ({ ...d, [item.id]: "" }));
 
+    if (kind === "aprovado" || kind === "ajuste") {
+      fetch("/api/push/approval", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, itemId: item.id, kind }),
+      }).catch(() => {});
+    }
+
     if (kind === "comentario") {
       setSentComment(item.id);
       setTimeout(() => setSentComment(null), 2000);
