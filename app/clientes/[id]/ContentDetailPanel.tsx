@@ -31,6 +31,7 @@ export function ContentDetailPanel({
   const [roteiroDraft, setRoteiroDraft] = useState(item.roteiro ?? "");
   const [legendaDraft, setLegendaDraft] = useState(item.legenda ?? "");
   const [audioDraft, setAudioDraft] = useState(item.audio ?? "");
+  const [publishedUrlDraft, setPublishedUrlDraft] = useState(item.published_url ?? "");
   const [checklist, setChecklist] = useState<ChecklistEntry[]>(item.checklist ?? []);
   const [novoItem, setNovoItem] = useState("");
   const [copiado, setCopiado] = useState(false);
@@ -109,6 +110,17 @@ export function ContentDetailPanel({
               />
             </div>
             <div className="flex flex-col gap-1.5">
+              <label className="text-xs text-text-secondary">Horário</label>
+              <input
+                type="time"
+                value={item.scheduled_time ? item.scheduled_time.slice(0, 5) : ""}
+                onChange={(e) =>
+                  onFieldChange(item.id, "scheduled_time", e.target.value || null)
+                }
+                className="bg-card-alt border border-line rounded-card px-3 py-2 text-sm outline-none focus:border-champagne transition-colors cursor-pointer [color-scheme:dark]"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
               <label className="text-xs text-text-secondary">Status</label>
               <select
                 value={item.status}
@@ -163,6 +175,36 @@ export function ContentDetailPanel({
               </select>
             </div>
           </div>
+
+          {item.status === "publicado" && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border border-line rounded-card p-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-text-secondary">Data da postagem</label>
+                <input
+                  type="date"
+                  value={item.published_at ?? ""}
+                  onChange={(e) =>
+                    onFieldChange(item.id, "published_at", e.target.value || null)
+                  }
+                  className="bg-card-alt border border-line rounded-card px-3 py-2 text-sm outline-none focus:border-champagne transition-colors cursor-pointer [color-scheme:dark]"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-text-secondary">Link do post</label>
+                <input
+                  value={publishedUrlDraft}
+                  onChange={(e) => setPublishedUrlDraft(e.target.value)}
+                  onBlur={() => {
+                    if (publishedUrlDraft !== (item.published_url ?? "")) {
+                      onFieldChange(item.id, "published_url", publishedUrlDraft.trim() || null);
+                    }
+                  }}
+                  placeholder="https://instagram.com/p/..."
+                  className="bg-card-alt border border-line rounded-card px-3 py-2 text-sm outline-none focus:border-champagne transition-colors placeholder:text-text-tertiary"
+                />
+              </div>
+            </div>
+          )}
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs text-text-secondary">Roteiro</label>

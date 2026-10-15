@@ -48,6 +48,9 @@ export type ContentItem = {
   legenda?: string | null;
   audio?: string | null;
   checklist?: ChecklistEntry[] | null;
+  published_url?: string | null;
+  scheduled_time?: string | null;
+  published_at?: string | null;
 };
 
 type Note = {
@@ -356,6 +359,9 @@ export function ClientDetail({
       legenda: data.legenda ?? null,
       audio: data.audio ?? null,
       checklist: data.checklist ?? [],
+      published_url: data.published_url ?? null,
+      scheduled_time: data.scheduled_time ?? null,
+      published_at: data.published_at ?? null,
     };
     setItems((current) => [...current, newItem]);
     setExpandedItemId(newItem.id);
