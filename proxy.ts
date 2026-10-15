@@ -7,7 +7,8 @@ const pendingRoute = "/aguardando-aprovacao";
 export async function proxy(request: NextRequest) {
   if (
     request.nextUrl.pathname.startsWith("/aprovar/") ||
-    request.nextUrl.pathname === "/api/push/approval"
+    request.nextUrl.pathname === "/api/push/approval" ||
+    request.nextUrl.pathname.startsWith("/api/cron/")
   ) {
     return NextResponse.next();
   }
