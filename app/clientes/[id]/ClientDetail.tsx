@@ -491,9 +491,9 @@ export function ClientDetail({
         <div className="w-12 h-12 rounded-full bg-card-alt border border-line flex items-center justify-center text-champagne shrink-0">
           {client.name.charAt(0)}
         </div>
-        <div>
+        <div className="min-w-0 flex-1 basis-48">
           <div className="flex flex-wrap items-center gap-2 md:gap-3">
-            <h2 className="text-2xl md:text-3xl font-medium">{client.name}</h2>
+            <h2 className="text-2xl md:text-3xl font-medium break-words min-w-0">{client.name}</h2>
             <select
               value={client.status}
               onChange={(e) => changeClientStatus(e.target.value)}
@@ -537,7 +537,7 @@ export function ClientDetail({
       </div>
 
       {/* Abas */}
-      <div className="flex items-center gap-1 border-b border-line">
+      <div className="flex items-center gap-1 border-b border-line overflow-x-auto">
         <button
           onClick={() => setActiveTab("geral")}
           className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
@@ -588,7 +588,7 @@ export function ClientDetail({
       {activeTab === "geral" && (
         <div className="flex flex-col gap-6">
           {/* Dados do cliente */}
-          <div className="border border-line rounded-card bg-card p-6 flex flex-col gap-5">
+          <div className="border border-line rounded-card bg-card p-4 md:p-6 flex flex-col gap-5 min-w-0">
             <div className="flex items-center justify-between">
               <h3 className="flex items-center gap-2 text-xs text-text-tertiary uppercase tracking-wide">
                 <IdCard size={14} className="text-champagne" strokeWidth={1.5} />
@@ -767,7 +767,7 @@ export function ClientDetail({
               </div>
             ) : (
               <div className="flex flex-col gap-5">
-                <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm break-words [&>div]:min-w-0">
                   <div>
                     <p className="text-xs text-text-tertiary mb-0.5">Documento</p>
                     <p>{client.document || "—"}</p>
