@@ -53,6 +53,7 @@ export type ContentItem = {
   published_url?: string | null;
   scheduled_time?: string | null;
   published_at?: string | null;
+  approval_status?: "aprovado" | "ajuste" | null;
 };
 
 type Note = {

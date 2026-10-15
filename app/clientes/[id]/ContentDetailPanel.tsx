@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Trash2, FileText, Copy, Check } from "lucide-react";
 import type { ContentItem, ContentStatus, Funil, TipoConteudo, ChecklistEntry } from "./ClientDetail";
 import { statusLabels } from "./ClientDetail";
 import { AnexosConteudo } from "./AnexosConteudo";
+import { createClient } from "../../lib/supabase/client";
 
 const statusOrder: ContentStatus[] = ["ideia", "roteiro", "producao", "aprovacao", "publicado"];
 const funilOptions: Exclude<Funil, null>[] = ["Topo", "Meio", "Final"];
@@ -32,6 +33,25 @@ export function ContentDetailPanel({
   const [legendaDraft, setLegendaDraft] = useState(item.legenda ?? "");
   const [audioDraft, setAudioDraft] = useState(item.audio ?? "");
   const [publishedUrlDraft, setPublishedUrlDraft] = useState(item.published_url ?? "");
+  const [supabase] = useState(() => createClient());
+  const [feedback, setFeedback] = useState<
+    { id: string; kind: string; comment: string | null; created_at: string }[]
+  >([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("mt_approval_comments")
+      .select("id, kind, comment, created_at")
+      .eq("content_item_id", item.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (!cancelled) setFeedback(data ?? []);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [supabase, item.id]);
   const [checklist, setChecklist] = useState<ChecklistEntry[]>(item.checklist ?? []);
   const [novoItem, setNovoItem] = useState("");
   const [copiado, setCopiado] = useState(false);
@@ -333,6 +353,38 @@ export function ContentDetailPanel({
               </button>
             )}
           </div>
+
+{(item.approval_status || feedback.length > 0) && (
+            <div className="flex flex-col gap-2 border border-line rounded-card p-4">
+              <div className="flex items-center justify-between">
+                <label className="text-xs text-text-secondary">Retorno do cliente</label>
+                {item.approval_status === "aprovado" && (
+                  <span className="flex items-center gap-1 text-[11px] text-champagne">
+                    <Check size={12} strokeWidth={1.5} />
+                    Aprovado
+                  </span>
+                )}
+                {item.approval_status === "ajuste" && (
+                  <span className="text-[11px] text-champagne">Ajuste pedido</span>
+                )}
+              </div>
+              {feedback.map((f) => (
+                <div key={f.id} className="text-sm">
+                  <span className="text-champagne-dim">
+                    {new Date(f.created_at).toLocaleDateString("pt-BR")}
+                  </span>{" "}
+                  <span className="text-text-tertiary text-xs">
+                    {f.kind === "aprovado"
+                      ? "Aprovou"
+                      : f.kind === "ajuste"
+                      ? "Pediu ajuste"
+                      : "Comentou"}
+                  </span>
+                  {f.comment && <p className="mt-0.5 break-words">{f.comment}</p>}
+                </div>
+              ))}
+            </div>
+          )}
 
           <AnexosConteudo itemId={item.id} />
         </div>
