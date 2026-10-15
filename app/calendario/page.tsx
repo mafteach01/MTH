@@ -6,8 +6,8 @@ export default async function CalendarioPage() {
 
   const { data: items } = await supabase
     .from("mt_content_items")
-    .select("id, title, status, date, client_id")
-    .not("date", "is", null);
+      .select("id, title, status, scheduled_date, client_id")
+    .not("scheduled_date", "is", null);
 
   const clientIds = [...new Set((items ?? []).map((item) => item.client_id))];
 
@@ -24,7 +24,7 @@ export default async function CalendarioPage() {
     id: item.id,
     title: item.title,
     status: item.status,
-    date: item.date as string,
+    date: item.scheduled_date as string,
     clientId: item.client_id,
     clientName: clientNameById.get(item.client_id) ?? "",
   }));

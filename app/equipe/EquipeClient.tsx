@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Users, Mail, ArrowRight, UserCheck } from "lucide-react";
+import { Users, Mail, ArrowRight, UserCheck, Ticket, Copy, Check } from "lucide-react";
 import { createClient } from "../lib/supabase/client";
 
 type Member = { id: string; name: string; role: string; email: string | null; status: string };
@@ -24,6 +24,10 @@ export function EquipeClient({
   const router = useRouter();
   const [supabase] = useState(() => createClient());
   const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [creatingInvite, setCreatingInvite] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const teamById = new Map(teams.map((t) => [t.id, t]));
   const approvedMembers = members.filter((m) => m.status === "approved");
@@ -35,11 +39,38 @@ export function EquipeClient({
     setApprovingId(null);
     router.refresh();
   }
+    async function handleCreateInvite() {
+    setCreatingInvite(true);
+    setInviteError(null);
+    setCopied(false);
+
+    const { data, error } = await supabase
+      .from("mt_invites")
+      .insert({})
+      .select("code")
+      .single();
+
+    setCreatingInvite(false);
+
+    if (error || !data) {
+      setInviteError("Não foi possível gerar o convite: " + (error?.message ?? "sem resposta"));
+      return;
+    }
+
+    setInviteLink(`${window.location.origin}/login?convite=${data.code}`);
+  }
+
+  async function handleCopyInvite() {
+    if (!inviteLink) return;
+    await navigator.clipboard.writeText(inviteLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   return (
-    <div className="p-4 md:p-10 flex flex-col gap-6 md:gap-8 max-w-6xl">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="flex items-center gap-2 text-2xl md:text-3xl font-medium">
+    <div className="p-10 flex flex-col gap-8 max-w-6xl">
+      <div className="flex items-center justify-between">
+        <h2 className="flex items-center gap-2 text-3xl font-medium">
           <Users size={22} className="text-champagne" strokeWidth={1.5} />
           Equipe
         </h2>
@@ -51,9 +82,48 @@ export function EquipeClient({
           <ArrowRight size={13} strokeWidth={1.5} />
         </Link>
       </div>
+      {isAdmin && (
+        <div className="border border-line rounded-card bg-card p-6 flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="flex items-center gap-2 text-sm font-medium">
+                <Ticket size={15} className="text-champagne" strokeWidth={1.5} />
+                Convidar para a sua equipe
+              </p>
+              <p className="text-xs text-text-tertiary mt-1">
+                O link vale 7 dias e só pode ser usado uma vez.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleCreateInvite}
+              disabled={creatingInvite}
+              className="text-xs bg-champagne text-black font-medium px-3 py-2 rounded-card hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50 shrink-0"
+            >
+              {creatingInvite ? "Gerando..." : "Gerar convite"}
+            </button>
+          </div>
 
+          {inviteError && <p className="text-xs text-red-400">{inviteError}</p>}
+
+          {inviteLink && (
+            <div className="flex items-center gap-2 border border-line rounded-card bg-card-alt px-3 py-2">
+              <p className="text-xs text-text-secondary truncate flex-1">{inviteLink}</p>
+              <button
+                type="button"
+                onClick={handleCopyInvite}
+                className="flex items-center gap-1.5 text-xs text-champagne cursor-pointer shrink-0"
+              >
+                {copied ? <Check size={13} strokeWidth={1.5} /> : <Copy size={13} strokeWidth={1.5} />}
+                {copied ? "Copiado" : "Copiar"}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+      
       {isAdmin && pendingMembers.length > 0 && (
-        <div className="border border-champagne/30 rounded-card bg-champagne/10 p-4 md:p-6 flex flex-col gap-4">
+        <div className="border border-champagne/30 rounded-card bg-champagne/10 p-6 flex flex-col gap-4">
           <p className="flex items-center gap-2 text-sm font-medium text-champagne">
             <UserCheck size={15} strokeWidth={1.5} />
             Contas aguardando aprovação ({pendingMembers.length})
@@ -63,19 +133,19 @@ export function EquipeClient({
             {pendingMembers.map((member) => (
               <div
                 key={member.id}
-                className="flex items-center justify-between gap-3 border border-line rounded-card bg-card px-4 py-3"
+                className="flex items-center justify-between border border-line rounded-card bg-card px-4 py-3"
               >
-                <div className="min-w-0">
+                <div>
                   <p className="text-sm font-medium">{member.name}</p>
                   {member.email && (
-                    <p className="text-xs text-text-tertiary break-all">{member.email}</p>
+                    <p className="text-xs text-text-tertiary">{member.email}</p>
                   )}
                 </div>
                 <button
                   type="button"
                   onClick={() => handleApprove(member.id)}
                   disabled={approvingId === member.id}
-                  className="shrink-0 text-xs bg-champagne text-black font-medium px-3 py-1.5 rounded-card hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
+                  className="text-xs bg-champagne text-black font-medium px-3 py-1.5 rounded-card hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
                 >
                   {approvingId === member.id ? "Aprovando..." : "Aprovar"}
                 </button>
@@ -85,28 +155,28 @@ export function EquipeClient({
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-3 gap-6">
         {approvedMembers.map((member) => {
           const memberRoster = roster.filter((r) => r.team_member_id === member.id);
 
           return (
             <div
               key={member.id}
-              className="min-w-0 border border-line rounded-card bg-card p-5 md:p-6 flex flex-col gap-4"
+              className="border border-line rounded-card bg-card p-6 flex flex-col gap-4"
             >
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-full bg-card-alt border border-line flex items-center justify-center text-champagne shrink-0">
                   {member.name.charAt(0)}
                 </div>
-                <div className="min-w-0">
-                  <p className="font-medium break-words">{member.name}</p>
+                <div>
+                  <p className="font-medium">{member.name}</p>
                 </div>
               </div>
 
               {member.email && (
-                <div className="flex items-start gap-2 text-xs text-text-tertiary min-w-0">
-                  <Mail size={13} strokeWidth={1.5} className="mt-0.5 shrink-0" />
-                  <span className="break-all">{member.email}</span>
+                <div className="flex items-center gap-2 text-xs text-text-tertiary">
+                  <Mail size={13} strokeWidth={1.5} />
+                  {member.email}
                 </div>
               )}
 
@@ -119,10 +189,7 @@ export function EquipeClient({
                   {memberRoster.map((entry) => {
                     const team = teamById.get(entry.team_id);
                     return (
-                      <div
-                        key={entry.id}
-                        className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm"
-                      >
+                      <div key={entry.id} className="flex items-center gap-2 text-sm">
                         <span className="text-text-secondary">{team?.name ?? "—"}</span>
                         <span className="text-text-tertiary">·</span>
                         <span className="text-champagne text-xs">{entry.role}</span>

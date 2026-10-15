@@ -18,7 +18,7 @@ type Event = {
   id: string;
   title: string;
   status: ContentStatus;
-  date: string; // formato "dd/mm"
+  date: string; // formato "yyyy-mm-dd"
   clientId: string;
   clientName: string;
 };
@@ -49,8 +49,8 @@ export function CalendarioClient({ events }: { events: Event[] }) {
 
   function eventsOfDay(day: number) {
     return events.filter((e) => {
-      const [eDay, eMonth] = e.date.split("/").map(Number);
-      return eMonth - 1 === month && eDay === day;
+      const [eYear, eMonth, eDay] = e.date.split("-").map(Number);
+      return eYear === year && eMonth - 1 === month && eDay === day;
     });
   }
 

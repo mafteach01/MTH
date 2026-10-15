@@ -80,7 +80,7 @@ export default async function Home() {
   // Atividade recente: últimos itens de conteúdo, com nome do cliente
   const { data: recentItemsRaw } = await supabase
     .from("mt_content_items")
-    .select("id, title, status, date, created_at, client_id")
+    .select("id, title, status, scheduled_date, created_at, client_id")
     .order("created_at", { ascending: false })
     .limit(6);
 
@@ -99,7 +99,9 @@ export default async function Home() {
     id: item.id,
     title: item.title,
     meta: `Cliente: ${clientNameById.get(item.client_id) ?? "—"}`,
-    date: item.date,
+    date: item.scheduled_date
+      ? item.scheduled_date.split("-").reverse().join("/")
+      : "—",
     status: statusLabels[item.status] ?? item.status,
   }));
 
