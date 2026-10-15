@@ -40,6 +40,8 @@ export function ContentDetailPanel({
   const [roteiroDraft, setRoteiroDraft] = useState(item.roteiro ?? "");
   const [legendaDraft, setLegendaDraft] = useState(item.legenda ?? "");
   const [audioDraft, setAudioDraft] = useState(item.audio ?? "");
+  const [hashtagsDraft, setHashtagsDraft] = useState((item.hashtags ?? []).join(" "));
+  const [keywordsDraft, setKeywordsDraft] = useState((item.keywords ?? []).join(", "));
   const [publishedUrlDraft, setPublishedUrlDraft] = useState(item.published_url ?? "");
   const [metricDrafts, setMetricDrafts] = useState<Record<MetricKey, string>>({
     metric_reach: String(item.metric_reach ?? ""),
@@ -301,6 +303,46 @@ export function ContentDetailPanel({
                 }
               }}
               placeholder="Nome da música ou link do áudio"
+              className="bg-card-alt border border-line rounded-card px-3 py-2 text-sm outline-none focus:border-champagne transition-colors placeholder:text-text-tertiary"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs text-text-secondary">Hashtags</label>
+            <input
+              value={hashtagsDraft}
+              onChange={(e) => setHashtagsDraft(e.target.value)}
+              onBlur={() => {
+                const arr = hashtagsDraft
+                  .split(/[\s,]+/)
+                  .filter(Boolean)
+                  .map((h) => (h.startsWith("#") ? h : "#" + h));
+                setHashtagsDraft(arr.join(" "));
+                if (arr.join(" ") !== (item.hashtags ?? []).join(" ")) {
+                  onFieldChange(item.id, "hashtags", arr);
+                }
+              }}
+              placeholder="#unhadegel #nailart"
+              className="bg-card-alt border border-line rounded-card px-3 py-2 text-sm outline-none focus:border-champagne transition-colors placeholder:text-text-tertiary"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs text-text-secondary">Palavras-chave</label>
+            <input
+              value={keywordsDraft}
+              onChange={(e) => setKeywordsDraft(e.target.value)}
+              onBlur={() => {
+                const arr = keywordsDraft
+                  .split(",")
+                  .map((k) => k.trim())
+                  .filter(Boolean);
+                setKeywordsDraft(arr.join(", "));
+                if (arr.join(", ") !== (item.keywords ?? []).join(", ")) {
+                  onFieldChange(item.id, "keywords", arr);
+                }
+              }}
+              placeholder="unha de gel, salão, manicure (separe por vírgula)"
               className="bg-card-alt border border-line rounded-card px-3 py-2 text-sm outline-none focus:border-champagne transition-colors placeholder:text-text-tertiary"
             />
           </div>

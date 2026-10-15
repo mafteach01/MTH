@@ -60,6 +60,8 @@ export type ContentItem = {
   metric_saves?: number | null;
   metric_shares?: number | null;
   metric_clicks?: number | null;
+  hashtags?: string[] | null;
+  keywords?: string[] | null;
 };
 
 type Note = {
