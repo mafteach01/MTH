@@ -33,6 +33,12 @@ export default async function ClienteDetalhePage({
     .eq("client_id", id)
     .order("created_at", { ascending: false });
 
+  const { data: strategy } = await supabase
+    .from("mt_client_strategy")
+    .select("*")
+    .eq("client_id", id)
+    .maybeSingle();
+
   const { data: team } = await supabase
     .from("mt_team_members")
     .select("id, name")
@@ -52,6 +58,7 @@ export default async function ClienteDetalhePage({
       client={client}
       initialItems={items ?? []}
       notes={notes ?? []}
+      strategy={strategy ?? null}
       team={team ?? []}
       teams={teams ?? []}
       roster={roster ?? []}

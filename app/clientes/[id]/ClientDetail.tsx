@@ -27,11 +27,13 @@ import {
   CalendarDays,
   Link2,
   Check,
+  Compass,
 } from "lucide-react";
 import { createClient } from "../../lib/supabase/client";
 import { ContentTable } from "./ContentTable";
 import { ContentDetailPanel } from "./ContentDetailPanel";
 import { CalendarioEditorial } from "./CalendarioEditorial";
+import { EstrategiaTab, type StrategyRow } from "./EstrategiaTab";
 
 export type ContentStatus = "ideia" | "roteiro" | "producao" | "aprovacao" | "publicado";
 export type Funil = "Topo" | "Meio" | "Final" | null;
@@ -161,7 +163,7 @@ function splitPlan(plan: string | null) {
     .filter(Boolean);
 }
 
-type Tab = "geral" | "planejamento" | "calendario";
+type Tab = "geral" | "planejamento" | "estrategia" | "calendario";
 
 export function ClientDetail({
   client: initialClient,
@@ -170,6 +172,7 @@ export function ClientDetail({
   team,
   teams,
   roster,
+  strategy,
 }: {
   client: Client;
   initialItems: ContentItem[];
@@ -177,6 +180,7 @@ export function ClientDetail({
   team: TeamMember[];
   teams: Team[];
   roster: RosterEntry[];
+  strategy: StrategyRow | null;
 }) {
   const router = useRouter();
   const [supabase] = useState(() => createClient());
@@ -543,6 +547,17 @@ export function ClientDetail({
         >
           <ClipboardList size={14} strokeWidth={1.5} />
           Planejamento
+        </button>
+        <button
+          onClick={() => setActiveTab("estrategia")}
+          className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
+            activeTab === "estrategia"
+              ? "border-champagne text-text"
+              : "border-transparent text-text-tertiary hover:text-text-secondary"
+          }`}
+        >
+          <Compass size={14} strokeWidth={1.5} />
+          Estratégia
         </button>
         <button
           onClick={() => setActiveTab("calendario")}
@@ -1060,6 +1075,10 @@ export function ClientDetail({
             </div>
           </div>
         </div>
+      )}
+
+      {activeTab === "estrategia" && (
+        <EstrategiaTab clientId={client.id} initial={strategy} />
       )}
 
       {activeTab === "calendario" && (
