@@ -1,15 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Settings, User, Bell, Shield } from "lucide-react";
+import { createClient } from "@/app/lib/supabase/client";
+import {
+  pushSupported,
+  getCurrentSubscription,
+  enablePush,
+  disablePush,
+} from "@/app/lib/supabase/pushClient";
 
-type ToggleKey = "novosItens" | "notasEquipe";
+type PrefKey = "aprovacoes" | "posts_do_dia" | "novos_itens" | "notas_equipe";
+type Prefs = Record<PrefKey, boolean>;
 
-function Toggle({ enabled, onClick }: { enabled: boolean; onClick: () => void }) {
+const defaultPrefs: Prefs = {
+  aprovacoes: true,
+  posts_do_dia: true,
+  novos_itens: true,
+  notas_equipe: false,
+};
+
+const prefLabels: { key: PrefKey; label: string }[] = [
+  { key: "aprovacoes", label: "Cliente aprovou ou pediu ajuste" },
+  { key: "posts_do_dia", label: "Posts agendados pra hoje" },
+  { key: "novos_itens", label: "Novos itens no planejamento" },
+  { key: "notas_equipe", label: "Notas da equipe" },
+];
+
+function Toggle({
+  enabled,
+  onClick,
+  disabled,
+}: {
+  enabled: boolean;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
   return (
     <button
       onClick={onClick}
-      className={`w-9 h-5 rounded-full relative transition-colors ${
+      disabled={disabled}
+      className={`w-9 h-5 rounded-full relative transition-colors disabled:opacity-50 ${
         enabled ? "bg-champagne" : "bg-card-alt border border-line"
       }`}
     >
@@ -23,13 +54,83 @@ function Toggle({ enabled, onClick }: { enabled: boolean; onClick: () => void })
 }
 
 export default function ConfiguracoesPage() {
-  const [toggles, setToggles] = useState<Record<ToggleKey, boolean>>({
-    novosItens: true,
-    notasEquipe: false,
-  });
+  const [supabase] = useState(() => createClient());
+  const [userId, setUserId] = useState<string | null>(null);
+  const [prefs, setPrefs] = useState<Prefs>(defaultPrefs);
+  const [loaded, setLoaded] = useState(false);
+  const [supported, setSupported] = useState(false);
+  const [pushOn, setPushOn] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
 
-  function handleToggle(key: ToggleKey) {
-    setToggles((current) => ({ ...current, [key]: !current[key] }));
+  useEffect(() => {
+    async function load() {
+      setSupported(pushSupported());
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        setUserId(user.id);
+        const { data } = await supabase
+          .from("mt_notification_prefs")
+          .select("aprovacoes, posts_do_dia, novos_itens, notas_equipe")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (data) setPrefs(data as Prefs);
+      }
+
+      if (pushSupported()) {
+        const sub = await getCurrentSubscription();
+        setPushOn(!!sub && Notification.permission === "granted");
+      }
+
+      setLoaded(true);
+    }
+    load();
+  }, [supabase]);
+
+  async function handleToggle(key: PrefKey) {
+    if (!userId) return;
+    const previous = prefs;
+    const next = { ...prefs, [key]: !prefs[key] };
+    setPrefs(next);
+
+    const { error } = await supabase
+      .from("mt_notification_prefs")
+      .upsert(
+        { user_id: userId, ...next, updated_at: new Date().toISOString() },
+        { onConflict: "user_id" }
+      );
+
+    if (error) {
+      setPrefs(previous);
+      setMsg("Não consegui salvar. Tenta de novo.");
+    } else {
+      setMsg("");
+    }
+  }
+
+  async function handlePush() {
+    setBusy(true);
+    setMsg("");
+
+    if (pushOn) {
+      await disablePush();
+      setPushOn(false);
+    } else {
+      const result = await enablePush();
+      if (result === "ok") {
+        setPushOn(true);
+      } else if (result === "denied") {
+        setMsg("Notificação bloqueada. Libera nas permissões do navegador.");
+      } else {
+        setMsg("Não deu pra ativar neste aparelho.");
+      }
+    }
+
+    setBusy(false);
   }
 
   return (
@@ -60,20 +161,39 @@ export default function ConfiguracoesPage() {
           <Bell size={14} className="text-champagne" strokeWidth={1.5} />
           Notificações
         </h3>
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-text-secondary">Novos itens no planejamento</p>
+
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm text-text-secondary">
+              Notificações neste aparelho
+            </p>
+            {!supported && loaded && (
+              <p className="text-xs text-text-tertiary">
+                Este navegador não suporta notificações.
+              </p>
+            )}
+          </div>
           <Toggle
-            enabled={toggles.novosItens}
-            onClick={() => handleToggle("novosItens")}
+            enabled={pushOn}
+            onClick={handlePush}
+            disabled={!supported || busy || !loaded}
           />
         </div>
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-text-secondary">Notas da equipe</p>
-          <Toggle
-            enabled={toggles.notasEquipe}
-            onClick={() => handleToggle("notasEquipe")}
-          />
-        </div>
+
+        <div className="h-px bg-line" />
+
+        {prefLabels.map(({ key, label }) => (
+          <div key={key} className="flex items-center justify-between">
+            <p className="text-sm text-text-secondary">{label}</p>
+            <Toggle
+              enabled={prefs[key]}
+              onClick={() => handleToggle(key)}
+              disabled={!loaded || !userId}
+            />
+          </div>
+        ))}
+
+        {msg && <p className="text-xs text-text-tertiary">{msg}</p>}
       </div>
 
       <div className="border border-line rounded-card bg-card p-6 flex flex-col gap-4">
