@@ -158,9 +158,15 @@ export function ContentDetailPanel({
               <label className="text-xs text-text-secondary">Status</label>
               <select
                 value={item.status}
-                onChange={(e) =>
-                  onFieldChange(item.id, "status", e.target.value as ContentStatus)
-                }
+                onChange={(e) => {
+                  const next = e.target.value as ContentStatus;
+                  onFieldChange(item.id, "status", next);
+                  if (next === "publicado" && !item.published_at) {
+                    const d = new Date();
+                    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                    onFieldChange(item.id, "published_at", iso);
+                  }
+                }}
                 className="bg-card-alt border border-line rounded-card px-3 py-2 text-sm outline-none focus:border-champagne transition-colors cursor-pointer"
               >
                 {statusOrder.map((s) => (
