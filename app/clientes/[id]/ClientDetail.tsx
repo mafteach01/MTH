@@ -389,6 +389,12 @@ export function ClientDetail({
     };
     setItems((current) => [...current, newItem]);
     setExpandedItemId(newItem.id);
+
+    fetch("/api/push/novo-item", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemId: data.id }),
+    }).catch(() => {});
   }
 
   function moveItemDate(id: string, iso: string) {
@@ -452,6 +458,12 @@ export function ClientDetail({
       ...current,
     ]);
     setNoteDraft("");
+
+    fetch("/api/push/nova-nota", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ noteId: data.id }),
+    }).catch(() => {});
   }
 
   async function deleteNote(id: string) {
