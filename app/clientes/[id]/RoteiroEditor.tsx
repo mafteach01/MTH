@@ -24,8 +24,10 @@ function limpar(html: string) {
       return;
     }
     const c = e.style.color;
+    const bg = e.style.backgroundColor;
     Array.from(e.attributes).forEach((a) => e.removeAttribute(a.name));
     if (c) e.style.color = c;
+    if (bg) e.style.backgroundColor = bg;
   });
   return t.innerHTML;
 }
@@ -43,7 +45,7 @@ export function RoteiroEditor({
   const ref = useRef<HTMLDivElement>(null);
   const range = useRef<Range | null>(null);
   const ultimo = useRef<string | null>(valor);
-  const [cor, setCor] = useState("#c0392b");
+  const [cor, setCor] =useState("#fde047");
   const [salvas, setSalvas] = useState<{ id: string; hex: string }[]>([]);
   const [copiado, setCopiado] = useState(false);
 
@@ -97,7 +99,7 @@ export function RoteiroEditor({
       s.addRange(range.current);
     }
     document.execCommand("styleWithCSS", false, "true");
-    document.execCommand("foreColor", false, hex);
+    document.execCommand("hiliteColor", false, hex);
     salvar();
   }
 
@@ -171,10 +173,10 @@ export function RoteiroEditor({
         </button>
         <button
           onMouseDown={noFocus}
-          onClick={() => pintar("#111111")}
+          onClick={() => pintar("transparent")}
           className="text-[11px] text-text-tertiary hover:text-text border border-line rounded-badge px-2 py-1.5 transition-colors"
         >
-          Cor padrão
+          Tirar marca
         </button>
       </div>
 
