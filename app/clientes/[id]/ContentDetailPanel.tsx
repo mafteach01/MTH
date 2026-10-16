@@ -5,6 +5,7 @@ import { X, Trash2, FileText, Copy, Check } from "lucide-react";
 import type { ContentItem, ContentStatus, Funil, TipoConteudo, ChecklistEntry } from "./ClientDetail";
 import { statusLabels } from "./ClientDetail";
 import { AnexosConteudo } from "./AnexosConteudo";
+import { RoteiroEditor } from "./RoteiroEditor";
 import { createClient } from "../../lib/supabase/client";
 
 const statusOrder: ContentStatus[] = ["ideia", "roteiro", "producao", "aprovacao", "publicado"];
@@ -37,7 +38,6 @@ export function ContentDetailPanel({
   onDelete: () => void;
 }) {
   const [titleDraft, setTitleDraft] = useState(item.title);
-  const [roteiroDraft, setRoteiroDraft] = useState(item.roteiro ?? "");
   const [legendaDraft, setLegendaDraft] = useState(item.legenda ?? "");
   const [audioDraft, setAudioDraft] = useState(item.audio ?? "");
   const [hashtagsDraft, setHashtagsDraft] = useState((item.hashtags ?? []).join(" "));
@@ -248,20 +248,11 @@ export function ContentDetailPanel({
             </div>
           )}
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs text-text-secondary">Roteiro</label>
-            <textarea
-              value={roteiroDraft}
-              onChange={(e) => setRoteiroDraft(e.target.value)}
-              onBlur={() => {
-                if (roteiroDraft !== (item.roteiro ?? "")) {
-                  onFieldChange(item.id, "roteiro", roteiroDraft || null);
-                }
-              }}
-              placeholder="Escreva o roteiro, ideias, referências..."
-              className="bg-card-alt border border-line rounded-card p-3 text-sm outline-none focus:border-champagne transition-colors resize-none min-h-[240px] placeholder:text-text-tertiary"
-            />
-          </div>
+          <RoteiroEditor
+            itemId={item.id}
+            valor={item.roteiro}
+            onSalvar={(v) => onFieldChange(item.id, "roteiro", v)}
+          />
 
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
