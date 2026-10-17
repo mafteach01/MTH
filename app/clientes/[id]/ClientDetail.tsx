@@ -29,6 +29,7 @@ import {
   Check,
   Compass,
   Palette,
+  Bookmark,
 } from "lucide-react";
 import { createClient } from "../../lib/supabase/client";
 import { ContentTable } from "./ContentTable";
@@ -36,6 +37,7 @@ import { ContentDetailPanel } from "./ContentDetailPanel";
 import { CalendarioEditorial } from "./CalendarioEditorial";
 import { EstrategiaTab, type StrategyRow } from "./EstrategiaTab";
 import { IdentidadeTab, type BrandRow } from "./IdentidadeTab";
+import { ReferenciasTab } from "./ReferenciasTab";
 
 export type ContentStatus = "ideia" | "roteiro" | "producao" | "aprovacao" | "publicado";
 export type Funil = "Topo" | "Meio" | "Final" | null;
@@ -167,7 +169,7 @@ function splitPlan(plan: string | null) {
     .filter(Boolean);
 }
 
-type Tab = "geral" | "planejamento" | "estrategia" | "identidade" | "calendario";
+type Tab = "geral" | "planejamento" | "estrategia" | "identidade" | "referencias" | "calendario";
 
 export function ClientDetail({
   client: initialClient,
@@ -646,6 +648,17 @@ export function ClientDetail({
         >
           <Palette size={14} strokeWidth={1.5} />
           Identidade
+        </button>
+        <button
+          onClick={() => setActiveTab("referencias")}
+          className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
+            activeTab === "referencias"
+              ? "border-champagne text-text"
+              : "border-transparent text-text-tertiary hover:text-text-secondary"
+          }`}
+        >
+          <Bookmark size={14} strokeWidth={1.5} />
+          Referências
         </button>
         <button
           onClick={() => setActiveTab("calendario")}
@@ -1172,6 +1185,8 @@ export function ClientDetail({
       {activeTab === "identidade" && (
         <IdentidadeTab clientId={client.id} initial={brand} />
       )}
+
+      {activeTab === "referencias" && <ReferenciasTab clientId={client.id} />}
 
       {activeTab === "calendario" && (
         <CalendarioEditorial
