@@ -31,11 +31,13 @@ export function ContentDetailPanel({
   onClose,
   onFieldChange,
   onDelete,
+  onReuse,
 }: {
   item: ContentItem;
   onClose: () => void;
   onFieldChange: <K extends keyof ContentItem>(id: string, field: K, value: ContentItem[K]) => void;
   onDelete: () => void;
+  onReuse: (tipo: Exclude<TipoConteudo, null>) => void;
 }) {
   const [titleDraft, setTitleDraft] = useState(item.title);
   const [legendaDraft, setLegendaDraft] = useState(item.legenda ?? "");
@@ -247,6 +249,27 @@ export function ContentDetailPanel({
               </div>
             </div>
           )}
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs text-text-secondary">Reaproveitar em outro formato</label>
+            <select
+              value=""
+              onChange={(e) => {
+                const t = e.target.value as Exclude<TipoConteudo, null>;
+                if (t) onReuse(t);
+              }}
+              className="bg-card-alt border border-line rounded-card px-3 py-2 text-sm outline-none focus:border-champagne transition-colors cursor-pointer"
+            >
+              <option value="">Escolher formato...</option>
+              {tipoOptions
+                .filter((t) => t !== item.tipo_conteudo)
+                .map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+            </select>
+          </div>
 
           <RoteiroEditor
             itemId={item.id}

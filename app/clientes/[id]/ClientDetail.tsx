@@ -403,6 +403,63 @@ export function ClientDetail({
     }).catch(() => {});
   }
 
+  async function reuseItem(id: string, tipo: Exclude<TipoConteudo, null>) {
+    const src = items.find((i) => i.id === id);
+    if (!src) return;
+
+    setSaving(true);
+    const { data, error } = await supabase
+      .from("mt_content_items")
+      .insert({
+        client_id: client.id,
+        title: `${src.title} (${tipo})`,
+        date: todayDDMM(),
+        scheduled_date: null,
+        status: "ideia",
+        funil: src.funil,
+        tipo_conteudo: tipo,
+        roteiro: src.roteiro,
+        legenda: src.legenda ?? null,
+        hashtags: src.hashtags ?? [],
+        keywords: src.keywords ?? [],
+      })
+      .select()
+      .single();
+    setSaving(false);
+
+    if (error || !data) {
+      alert("Erro ao reaproveitar: " + (error?.message ?? "desconhecido"));
+      return;
+    }
+
+    const newItem: ContentItem = {
+      id: data.id,
+      title: data.title,
+      status: data.status,
+      date: data.date,
+      funil: data.funil,
+      tipo_conteudo: data.tipo_conteudo,
+      roteiro: data.roteiro,
+      scheduled_date: data.scheduled_date,
+      legenda: data.legenda ?? null,
+      audio: data.audio ?? null,
+      checklist: data.checklist ?? [],
+      published_url: data.published_url ?? null,
+      scheduled_time: data.scheduled_time ?? null,
+      published_at: data.published_at ?? null,
+      hashtags: data.hashtags ?? [],
+      keywords: data.keywords ?? [],
+    };
+    setItems((current) => [...current, newItem]);
+    setExpandedItemId(newItem.id);
+
+    fetch("/api/push/novo-item", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemId: data.id }),
+    }).catch(() => {});
+  }
+
   function moveItemDate(id: string, iso: string) {
     updateItemField(id, "scheduled_date", iso);
   }
@@ -1127,7 +1184,9 @@ export function ClientDetail({
 
       {expandedItem && (
         <ContentDetailPanel
+          key={expandedItem.id}
           item={expandedItem}
+          onReuse={(tipo) => reuseItem(expandedItem.id, tipo)}
           onClose={() => setExpandedItemId(null)}
           onFieldChange={updateItemField}
           onDelete={() => deleteContentItem(expandedItem.id)}
