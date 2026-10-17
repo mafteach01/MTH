@@ -261,13 +261,11 @@ export function ContentDetailPanel({
               className="bg-card-alt border border-line rounded-card px-3 py-2 text-sm outline-none focus:border-champagne transition-colors cursor-pointer"
             >
               <option value="">Escolher formato...</option>
-              {tipoOptions
-                .filter((t) => t !== item.tipo_conteudo)
-                .map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
+              {tipoOptions.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
             </select>
           </div>
 

@@ -602,7 +602,7 @@ export function ClientDetail({
       </div>
 
       {/* Abas */}
-      <div className="flex items-center gap-1 border-b border-line overflow-x-auto">
+      <div className="flex items-center gap-1 border-b border-line overflow-x-auto md:overflow-visible">
         <button
           onClick={() => setActiveTab("geral")}
           className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
