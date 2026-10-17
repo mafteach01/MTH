@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import type { ContentItem, Funil } from "./ClientDetail";
 import { statusLabels } from "./ClientDetail";
+import { datasComemorativas } from "../../lib/supabase/datasComemorativas";
 
 const weekDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const monthNames = [
@@ -27,6 +28,17 @@ function funilBadgeClasses(funil: Funil) {
     default:
       return "bg-card-alt text-text-tertiary border-line";
   }
+}
+
+function textoLimpo(html: string) {
+  return html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/div>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&");
 }
 
 function pad(n: number) {
@@ -81,6 +93,7 @@ export function CalendarioEditorial({
   }, []);
 
   const cells = getMonthGrid(year, month);
+  const datas = datasComemorativas(year);
   const itemsWithoutDate = items.filter((i) => !i.scheduled_date);
   const selectedItems = selectedIso
     ? items.filter((it) => it.scheduled_date === selectedIso)
@@ -149,7 +162,7 @@ export function CalendarioEditorial({
         )}
         {item.roteiro && (
           <p className="text-xs text-text-secondary mt-2 line-clamp-3 whitespace-pre-line break-words">
-            {item.roteiro}
+            {textoLimpo(item.roteiro)}
           </p>
         )}
       </button>
@@ -248,6 +261,15 @@ export function CalendarioEditorial({
                       {day}
                     </span>
 
+                    {iso && datas.get(iso) && (
+                      <>
+                        <span className="hidden md:block text-[10px] leading-tight text-champagne-dim break-words">
+                          {datas.get(iso)}
+                        </span>
+                        <span className="md:hidden w-1 h-1 rounded-full border border-champagne" />
+                      </>
+                    )}
+
                     {/* Celular: só bolinhas */}
                     <div className="flex md:hidden flex-wrap justify-center gap-0.5">
                       {dayItems.slice(0, 3).map((it) => (
@@ -278,6 +300,7 @@ export function CalendarioEditorial({
           <div className="flex items-center justify-between gap-2">
             <p className="text-xs text-text-tertiary uppercase tracking-wide">
               Dia {ddmmFromIso(selectedIso)}
+              {datas.get(selectedIso) ? ` · ${datas.get(selectedIso)}` : ""}
             </p>
             <button
               onClick={() => onCreate(selectedIso)}
