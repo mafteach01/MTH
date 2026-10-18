@@ -39,6 +39,7 @@ import { EstrategiaTab, type StrategyRow } from "./EstrategiaTab";
 import { IdentidadeTab, type BrandRow } from "./IdentidadeTab";
 import { ReferenciasTab } from "./ReferenciasTab";
 import { IdeiasTab } from "./IdeiasTab";
+import { OnboardingCard } from "./OnboardingCard";
 
 export type ContentStatus = "ideia" | "roteiro" | "producao" | "aprovacao" | "publicado";
 export type Funil = "Topo" | "Meio" | "Final" | null;
@@ -744,6 +745,8 @@ export function ClientDetail({
 
       {activeTab === "geral" && (
         <div className="flex flex-col gap-6">
+          <OnboardingCard clientId={client.id} />
+
           {/* Dados do cliente */}
           <div className="border border-line rounded-card bg-card p-4 md:p-6 flex flex-col gap-5 min-w-0">
             <div className="flex items-center justify-between">
