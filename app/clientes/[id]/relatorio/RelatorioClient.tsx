@@ -14,6 +14,7 @@ export type ReportItem = {
   metric_saves: number | null;
   metric_shares: number | null;
   metric_clicks: number | null;
+  metric_watch_seconds: number | null;
 };
 
 const monthNames = [
@@ -28,6 +29,12 @@ function currentMonth() {
 
 function fmt(n: number | null) {
   return n == null ? "—" : n.toLocaleString("pt-BR");
+}
+
+function fmtTempo(s: number) {
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return m > 0 ? `${m}min${String(r).padStart(2, "0")}s` : `${r}s`;
 }
 
 function fmtDate(iso: string) {
@@ -67,6 +74,14 @@ export function RelatorioClient({
     [monthItems]
   );
 
+  const tempoMedio = useMemo(() => {
+    const vals = monthItems
+      .map((i) => i.metric_watch_seconds)
+      .filter((v): v is number => v != null && v > 0);
+    if (vals.length === 0) return null;
+    return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+  }, [monthItems]);
+
   const best = useMemo(() => {
     let b: ReportItem | null = null;
     for (const i of monthItems) {
@@ -98,10 +113,14 @@ export function RelatorioClient({
 
   const stats = [
     { label: "Posts publicados", value: monthItems.length.toLocaleString("pt-BR") },
-    { label: "Alcance", value: totals.reach.toLocaleString("pt-BR") },
+    { label: "Visualizações", value: totals.reach.toLocaleString("pt-BR") },
     { label: "Salvamentos", value: totals.saves.toLocaleString("pt-BR") },
     { label: "Compartilhamentos", value: totals.shares.toLocaleString("pt-BR") },
-    { label: "Cliques", value: totals.clicks.toLocaleString("pt-BR") },
+    { label: "Curtidas", value: totals.clicks.toLocaleString("pt-BR") },
+    {
+      label: "Tempo médio assistido",
+      value: tempoMedio == null ? "—" : fmtTempo(tempoMedio),
+    },
   ];
 
   return (
@@ -159,7 +178,7 @@ export function RelatorioClient({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 print:grid-cols-3 gap-3 md:gap-4">
         {stats.map((s) => (
           <div key={s.label} className="border border-line rounded-card bg-card p-4">
             <p className="text-xs text-text-secondary">{s.label}</p>
@@ -181,11 +200,11 @@ export function RelatorioClient({
               <div className="border border-line rounded-card bg-card p-4 flex flex-col gap-1.5">
                 <p className="flex items-center gap-1.5 text-xs text-text-secondary">
                   <Trophy size={13} strokeWidth={1.5} className="text-champagne" />
-                  Melhor post do mês (alcance)
+
                 </p>
                 <p className="text-base font-medium break-words">{best.title}</p>
                 <p className="text-sm text-champagne">
-                  {fmt(best.metric_reach)} de alcance · {fmtDate(best.published_at)}
+                  {fmt(best.metric_reach)} visualizações · {fmtDate(best.published_at)}
                 </p>
               </div>
             )}
@@ -205,15 +224,16 @@ export function RelatorioClient({
           </div>
 
           <div className="border border-line rounded-card bg-card overflow-x-auto">
-            <table className="w-full text-sm min-w-[560px]">
+            <table className="w-full text-sm min-w-[640px]">
               <thead>
                 <tr className="text-left text-text-tertiary text-xs border-b border-line">
                   <th className="p-3 font-normal">Data</th>
                   <th className="p-3 font-normal">Conteúdo</th>
-                  <th className="p-3 font-normal text-right">Alcance</th>
+                  <th className="p-3 font-normal text-right">Visual.</th>
                   <th className="p-3 font-normal text-right">Salv.</th>
                   <th className="p-3 font-normal text-right">Comp.</th>
-                  <th className="p-3 font-normal text-right">Cliques</th>
+                  <th className="p-3 font-normal text-right">Curtidas</th>
+                  <th className="p-3 font-normal text-right">Tempo</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
@@ -245,6 +265,9 @@ export function RelatorioClient({
                     <td className="p-3 text-right">{fmt(i.metric_saves)}</td>
                     <td className="p-3 text-right">{fmt(i.metric_shares)}</td>
                     <td className="p-3 text-right">{fmt(i.metric_clicks)}</td>
+                    <td className="p-3 text-right">
+                      {i.metric_watch_seconds ? fmtTempo(i.metric_watch_seconds) : "—"}
+                    </td>
                   </tr>
                 ))}
               </tbody>

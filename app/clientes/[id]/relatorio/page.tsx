@@ -21,7 +21,7 @@ export default async function RelatorioPage({
   const { data: items } = await supabase
     .from("mt_content_items")
     .select(
-      "id, title, tipo_conteudo, published_at, published_url, metric_reach, metric_saves, metric_shares, metric_clicks"
+      "id, title, tipo_conteudo, published_at, published_url, metric_reach, metric_saves, metric_shares, metric_clicks, metric_watch_seconds"
     )
     .eq("client_id", id)
     .eq("status", "publicado")
