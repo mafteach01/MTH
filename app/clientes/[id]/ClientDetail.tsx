@@ -40,6 +40,7 @@ import { IdentidadeTab, type BrandRow } from "./IdentidadeTab";
 import { ReferenciasTab } from "./ReferenciasTab";
 import { IdeiasTab } from "./IdeiasTab";
 import { OnboardingCard } from "./OnboardingCard";
+import { MetricasTab } from "./MetricasTab";
 
 export type ContentStatus = "ideia" | "roteiro" | "producao" | "aprovacao" | "publicado";
 export type Funil = "Topo" | "Meio" | "Final" | null;
@@ -171,7 +172,7 @@ function splitPlan(plan: string | null) {
     .filter(Boolean);
 }
 
-type Tab = "geral" | "planejamento" | "estrategia" | "identidade" | "referencias" | "ideias" | "calendario";
+type Tab = "geral" | "planejamento" | "estrategia" | "identidade" | "referencias" | "ideias" | "metricas" | "calendario";
 
 export function ClientDetail({
   client: initialClient,
@@ -730,6 +731,17 @@ export function ClientDetail({
           Ideias
         </button>
         <button
+          onClick={() => setActiveTab("metricas")}
+          className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
+            activeTab === "metricas"
+              ? "border-champagne text-text"
+              : "border-transparent text-text-tertiary hover:text-text-secondary"
+          }`}
+        >
+          <BarChart3 size={14} strokeWidth={1.5} />
+          Métricas
+        </button>
+        <button
           onClick={() => setActiveTab("calendario")}
           className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
             activeTab === "calendario"
@@ -1261,6 +1273,10 @@ export function ClientDetail({
 
       {activeTab === "ideias" && (
         <IdeiasTab clientId={client.id} onConvert={convertIdea} />
+      )}
+
+      {activeTab === "metricas" && (
+        <MetricasTab items={items} onExpand={(id) => setExpandedItemId(id)} />
       )}
 
       {activeTab === "calendario" && (
