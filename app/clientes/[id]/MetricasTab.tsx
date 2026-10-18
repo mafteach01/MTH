@@ -3,13 +3,19 @@
 import { useState } from "react";
 import type { ContentItem } from "./ClientDetail";
 
-type Key = "metric_reach" | "metric_saves" | "metric_shares" | "metric_clicks";
+type Key =
+  | "metric_reach"
+  | "metric_saves"
+  | "metric_shares"
+  | "metric_clicks"
+  | "metric_watch_seconds";
 
 const metricas: { key: Key; label: string }[] = [
-  { key: "metric_reach", label: "Alcance" },
+  { key: "metric_reach", label: "Visualizações" },
   { key: "metric_saves", label: "Salvamentos" },
   { key: "metric_shares", label: "Compartilhamentos" },
-  { key: "metric_clicks", label: "Cliques" },
+  { key: "metric_clicks", label: "Curtidas" },
+  { key: "metric_watch_seconds", label: "Tempo médio assistido" },
 ];
 
 const mesesCurtos = [
@@ -24,6 +30,12 @@ function chaveMes(item: ContentItem) {
 
 function fmt(n: number) {
   return n.toLocaleString("pt-BR");
+}
+
+function fmtTempo(s: number) {
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return m > 0 ? `${m}min${String(r).padStart(2, "0")}s` : `${r}s`;
 }
 
 export function MetricasTab({
@@ -44,13 +56,26 @@ export function MetricasTab({
     };
   });
 
-  const valores = meses.map((m) =>
-    items
-      .filter((it) => chaveMes(it) === m.key)
-      .reduce((soma, it) => soma + (it[key] ?? 0), 0)
-  );
+  const ehTempo = key === "metric_watch_seconds";
+  const valores = meses.map((m) => {
+    const doMes = items.filter(
+      (it) => chaveMes(it) === m.key && (it[key] ?? 0) > 0
+    );
+    const soma = doMes.reduce((s, it) => s + (it[key] ?? 0), 0);
+    if (!ehTempo) return soma;
+    return doMes.length ? Math.round(soma / doMes.length) : 0;
+  });
   const max = Math.max(...valores, 1);
-  const total = valores.reduce((a, b) => a + b, 0);
+  const noPeriodo = items.filter(
+    (it) => meses.some((m) => m.key === chaveMes(it)) && (it[key] ?? 0) > 0
+  );
+  const somaPeriodo = noPeriodo.reduce((s, it) => s + (it[key] ?? 0), 0);
+  const total = ehTempo
+    ? noPeriodo.length
+      ? Math.round(somaPeriodo / noPeriodo.length)
+      : 0
+    : somaPeriodo;
+  const mostrar = (n: number) => (ehTempo ? fmtTempo(n) : fmt(n));
 
   const top = items
     .filter((it) => (it[key] ?? 0) > 0)
@@ -82,7 +107,7 @@ export function MetricasTab({
           <h3 className="text-xs text-text-tertiary uppercase tracking-wide">
             {label} · últimos 6 meses
           </h3>
-          <span className="text-sm text-champagne">{fmt(total)}</span>
+          <span className="text-sm text-champagne">{mostrar(total)}</span>
         </div>
 
         {total === 0 ? (
@@ -97,7 +122,7 @@ export function MetricasTab({
                   key={i}
                   className="flex-1 min-w-0 text-center text-[10px] md:text-xs text-text-secondary truncate"
                 >
-                  {v > 0 ? fmt(v) : ""}
+                  {v > 0 ? mostrar(v) : ""}
                 </div>
               ))}
             </div>
@@ -142,7 +167,7 @@ export function MetricasTab({
           >
             <span className="text-xs text-text-tertiary w-4 shrink-0">{i + 1}</span>
             <span className="flex-1 min-w-0 text-sm break-words">{it.title}</span>
-            <span className="text-sm text-champagne shrink-0">{fmt(it[key] ?? 0)}</span>
+            <span className="text-sm text-champagne shrink-0">{mostrar(it[key] ?? 0)}</span>
           </button>
         ))}
       </div>

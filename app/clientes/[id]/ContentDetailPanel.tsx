@@ -18,12 +18,18 @@ const funilLabels: Record<Exclude<Funil, null>, string> = {
 const tipoOptions: Exclude<TipoConteudo, null>[] = ["Reels", "Card", "Carrossel", "Story"];
 const checklistPadrao = ["Gravar", "Editar", "Legenda pronta", "Aprovado", "Postado"];
 
-type MetricKey = "metric_reach" | "metric_saves" | "metric_shares" | "metric_clicks";
+type MetricKey =
+  | "metric_reach"
+  | "metric_saves"
+  | "metric_shares"
+  | "metric_clicks"
+  | "metric_watch_seconds";
 const metricFields: { key: MetricKey; label: string }[] = [
-  { key: "metric_reach", label: "Alcance" },
+  { key: "metric_reach", label: "Visualizações" },
   { key: "metric_saves", label: "Salvamentos" },
   { key: "metric_shares", label: "Compartilhamentos" },
-  { key: "metric_clicks", label: "Cliques" },
+  { key: "metric_clicks", label: "Curtidas" },
+  { key: "metric_watch_seconds", label: "Tempo médio assistido (seg)" },
 ];
 
 export function ContentDetailPanel({
@@ -50,6 +56,7 @@ export function ContentDetailPanel({
     metric_saves: String(item.metric_saves ?? ""),
     metric_shares: String(item.metric_shares ?? ""),
     metric_clicks: String(item.metric_clicks ?? ""),
+    metric_watch_seconds: String(item.metric_watch_seconds ?? ""),
   });
   const [supabase] = useState(() => createClient());
   const [feedback, setFeedback] = useState<

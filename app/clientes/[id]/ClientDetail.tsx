@@ -67,6 +67,7 @@ export type ContentItem = {
   metric_saves?: number | null;
   metric_shares?: number | null;
   metric_clicks?: number | null;
+  metric_watch_seconds?: number | null;
   hashtags?: string[] | null;
   keywords?: string[] | null;
 };
