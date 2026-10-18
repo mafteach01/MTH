@@ -3,12 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users, Calendar, UserRound, Shield, Settings, Menu, X } from "lucide-react";
+import { Home, Users, Calendar, UserRound, Shield, Settings, Menu, X, Wallet } from "lucide-react";
 
 const nav = [
   { href: "/", label: "Visão geral", icon: Home },
   { href: "/clientes", label: "Clientes", icon: Users },
   { href: "/calendario", label: "Calendário", icon: Calendar },
+  { href: "/financeiro", label: "Financeiro", icon: Wallet },
   { href: "/equipe", label: "Equipe", icon: UserRound },
   { href: "/equipes", label: "Equipes", icon: Shield },
   { href: "/configuracoes", label: "Configurações", icon: Settings },
