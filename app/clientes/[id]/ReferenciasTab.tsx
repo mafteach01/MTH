@@ -140,7 +140,8 @@ export function ReferenciasTab({ clientId }: { clientId: string }) {
         {refs.map((r) => (
           <div
             key={r.id}
-            className="border border-line rounded-card bg-card p-4 flex items-start gap-3 min-w-0"
+            onClick={() => window.open(r.url, "_blank", "noopener,noreferrer")}
+            className="border border-line rounded-card bg-card p-4 flex items-start gap-3 min-w-0 cursor-pointer hover:border-champagne transition-colors"
           >
             <div className="text-champagne shrink-0 mt-0.5">
               {r.kind === "perfil" ? (
@@ -160,7 +161,10 @@ export function ReferenciasTab({ clientId }: { clientId: string }) {
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-3 shrink-0">
+            <div
+              className="flex items-center gap-3 shrink-0"
+              onClick={(e) => e.stopPropagation()}
+            >
               <a
                 href={r.url}
                 target="_blank"
