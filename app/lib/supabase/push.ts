@@ -65,8 +65,10 @@ export async function sendPushToUser(
           { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
           message
         );
+        console.log("push enviado", userId, kind);
       } catch (err) {
         const status = (err as { statusCode?: number }).statusCode;
+        console.error("push falhou", userId, kind, status, (err as Error).message);
         if (status === 404 || status === 410) {
           await admin.from("mt_push_subscriptions").delete().eq("id", sub.id);
         }
