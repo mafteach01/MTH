@@ -38,6 +38,7 @@ import { CalendarioEditorial } from "./CalendarioEditorial";
 import { EstrategiaTab, type StrategyRow } from "./EstrategiaTab";
 import { IdentidadeTab, type BrandRow } from "./IdentidadeTab";
 import { ReferenciasTab } from "./ReferenciasTab";
+import { IdeiasTab } from "./IdeiasTab";
 
 export type ContentStatus = "ideia" | "roteiro" | "producao" | "aprovacao" | "publicado";
 export type Funil = "Topo" | "Meio" | "Final" | null;
@@ -169,7 +170,7 @@ function splitPlan(plan: string | null) {
     .filter(Boolean);
 }
 
-type Tab = "geral" | "planejamento" | "estrategia" | "identidade" | "referencias" | "calendario";
+type Tab = "geral" | "planejamento" | "estrategia" | "identidade" | "referencias" | "ideias" | "calendario";
 
 export function ClientDetail({
   client: initialClient,
@@ -462,6 +463,62 @@ export function ClientDetail({
     }).catch(() => {});
   }
 
+  async function convertIdea(text: string): Promise<boolean> {
+    const clean = text.trim();
+    const firstLine = clean.split("\n")[0];
+    const title =
+      firstLine.length > 60 ? firstLine.slice(0, 60).trim() + "..." : firstLine;
+
+    const { data, error } = await supabase
+      .from("mt_content_items")
+      .insert({
+        client_id: client.id,
+        title,
+        date: todayDDMM(),
+        scheduled_date: null,
+        status: "ideia",
+        funil: null,
+        tipo_conteudo: null,
+        roteiro: clean,
+      })
+      .select()
+      .single();
+
+    if (error || !data) {
+      alert("Erro ao virar conteúdo: " + (error?.message ?? "desconhecido"));
+      return false;
+    }
+
+    const newItem: ContentItem = {
+      id: data.id,
+      title: data.title,
+      status: data.status,
+      date: data.date,
+      funil: data.funil,
+      tipo_conteudo: data.tipo_conteudo,
+      roteiro: data.roteiro,
+      scheduled_date: data.scheduled_date,
+      legenda: data.legenda ?? null,
+      audio: data.audio ?? null,
+      checklist: data.checklist ?? [],
+      published_url: data.published_url ?? null,
+      scheduled_time: data.scheduled_time ?? null,
+      published_at: data.published_at ?? null,
+      hashtags: data.hashtags ?? [],
+      keywords: data.keywords ?? [],
+    };
+    setItems((current) => [...current, newItem]);
+    setExpandedItemId(newItem.id);
+
+    fetch("/api/push/novo-item", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemId: data.id }),
+    }).catch(() => {});
+
+    return true;
+  }
+
   function moveItemDate(id: string, iso: string) {
     updateItemField(id, "scheduled_date", iso);
   }
@@ -659,6 +716,17 @@ export function ClientDetail({
         >
           <Bookmark size={14} strokeWidth={1.5} />
           Referências
+        </button>
+        <button
+          onClick={() => setActiveTab("ideias")}
+          className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
+            activeTab === "ideias"
+              ? "border-champagne text-text"
+              : "border-transparent text-text-tertiary hover:text-text-secondary"
+          }`}
+        >
+          <Lightbulb size={14} strokeWidth={1.5} />
+          Ideias
         </button>
         <button
           onClick={() => setActiveTab("calendario")}
@@ -1187,6 +1255,10 @@ export function ClientDetail({
       )}
 
       {activeTab === "referencias" && <ReferenciasTab clientId={client.id} />}
+
+      {activeTab === "ideias" && (
+        <IdeiasTab clientId={client.id} onConvert={convertIdea} />
+      )}
 
       {activeTab === "calendario" && (
         <CalendarioEditorial
