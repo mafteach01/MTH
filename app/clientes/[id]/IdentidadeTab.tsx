@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, X, Palette, Type, Image as ImageIcon, MessageSquare } from "lucide-react";
 import { createClient } from "../../lib/supabase/client";
+import { IdentidadeBriefing } from "./IdentidadeBriefing";
 
 export type BrandRow = {
   colors: string[] | null;
@@ -101,6 +102,8 @@ export function IdentidadeTab({
         {status === "saving" && "salvando..."}
         {status === "saved" && "salvo"}
       </div>
+
+      <IdentidadeBriefing clientId={clientId} />
 
       <Section
         icon={Palette}
