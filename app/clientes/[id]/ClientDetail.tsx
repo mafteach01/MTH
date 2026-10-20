@@ -175,6 +175,17 @@ function splitPlan(plan: string | null) {
 
 type Tab = "geral" | "planejamento" | "estrategia" | "identidade" | "referencias" | "ideias" | "metricas" | "calendario";
 
+const tabsList: { id: Tab; label: string; short?: string; icon: typeof Palette }[] = [
+  { id: "geral", label: "Visão geral", icon: LayoutGrid },
+  { id: "identidade", label: "Identidade", icon: Palette },
+  { id: "referencias", label: "Referências", icon: Bookmark },
+  { id: "estrategia", label: "Estratégia", icon: Compass },
+  { id: "planejamento", label: "Planejamento", icon: ClipboardList },
+  { id: "metricas", label: "Métricas", icon: BarChart3 },
+  { id: "calendario", label: "Calendário editorial", short: "Calendário", icon: CalendarDays },
+  { id: "ideias", label: "Ideias", icon: Lightbulb },
+];
+
 export function ClientDetail({
   client: initialClient,
   initialItems,
@@ -665,95 +676,30 @@ export function ClientDetail({
 
       {/* Abas */}
       <div className="flex items-center gap-1 border-b border-line overflow-x-auto md:overflow-visible">
-        <button
-          onClick={() => setActiveTab("geral")}
-          className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
-            activeTab === "geral"
-              ? "border-champagne text-text"
-              : "border-transparent text-text-tertiary hover:text-text-secondary"
-          }`}
-        >
-          <LayoutGrid size={14} strokeWidth={1.5} />
-          Visão geral
-        </button>
-        <button
-          onClick={() => setActiveTab("planejamento")}
-          className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
-            activeTab === "planejamento"
-              ? "border-champagne text-text"
-              : "border-transparent text-text-tertiary hover:text-text-secondary"
-          }`}
-        >
-          <ClipboardList size={14} strokeWidth={1.5} />
-          Planejamento
-        </button>
-        <button
-          onClick={() => setActiveTab("estrategia")}
-          className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
-            activeTab === "estrategia"
-              ? "border-champagne text-text"
-              : "border-transparent text-text-tertiary hover:text-text-secondary"
-          }`}
-        >
-          <Compass size={14} strokeWidth={1.5} />
-          Estratégia
-        </button>
-        <button
-          onClick={() => setActiveTab("identidade")}
-          className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
-            activeTab === "identidade"
-              ? "border-champagne text-text"
-              : "border-transparent text-text-tertiary hover:text-text-secondary"
-          }`}
-        >
-          <Palette size={14} strokeWidth={1.5} />
-          Identidade
-        </button>
-        <button
-          onClick={() => setActiveTab("referencias")}
-          className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
-            activeTab === "referencias"
-              ? "border-champagne text-text"
-              : "border-transparent text-text-tertiary hover:text-text-secondary"
-          }`}
-        >
-          <Bookmark size={14} strokeWidth={1.5} />
-          Referências
-        </button>
-        <button
-          onClick={() => setActiveTab("ideias")}
-          className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
-            activeTab === "ideias"
-              ? "border-champagne text-text"
-              : "border-transparent text-text-tertiary hover:text-text-secondary"
-          }`}
-        >
-          <Lightbulb size={14} strokeWidth={1.5} />
-          Ideias
-        </button>
-        <button
-          onClick={() => setActiveTab("metricas")}
-          className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
-            activeTab === "metricas"
-              ? "border-champagne text-text"
-              : "border-transparent text-text-tertiary hover:text-text-secondary"
-          }`}
-        >
-          <BarChart3 size={14} strokeWidth={1.5} />
-          Métricas
-        </button>
-        <button
-          onClick={() => setActiveTab("calendario")}
-          className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
-            activeTab === "calendario"
-              ? "border-champagne text-text"
-              : "border-transparent text-text-tertiary hover:text-text-secondary"
-          }`}
-        >
-          <CalendarDays size={14} strokeWidth={1.5} />
-          <span className="md:hidden">Calendário</span>
-          <span className="hidden md:inline">Calendário editorial</span>
-        </button>
+        {tabsList.map((t) => {
+          const TabIcon = t.icon;
+          return (
+            <button
+              key={t.id}
+              onClick={() => setActiveTab(t.id)}
+              className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm px-2 md:px-4 py-2.5 border-b-2 -mb-px transition-colors whitespace-nowrap ${
+                activeTab === t.id
+                  ? "border-champagne text-text"
+                  : "border-transparent text-text-tertiary hover:text-text-secondary"
+              }`}
+            >
+              <TabIcon size={14} strokeWidth={1.5} />
+              {t.short ? (
+                <>
+                  <span className="md:hidden">{t.short}</span>
+                  <span className="hidden md:inline">{t.label}</span>
+                </>
+              ) : (
+                t.label
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {activeTab === "geral" && (
