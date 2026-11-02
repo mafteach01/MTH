@@ -183,7 +183,11 @@ export default function LoginPage() {
                 <input
                   type="text"
                   value={inviteCode}
-                  onChange={(e) => setInviteCode(e.target.value)}
+                  onChange={(e) => {
+  const v = e.target.value;
+  const match = v.match(/convite=([A-Za-z0-9]+)/);
+  setInviteCode(match ? match[1] : v);
+}}
                   placeholder="Só se alguém te convidou"
                   className="bg-transparent outline-none text-sm w-full placeholder:text-text-tertiary"
                 />
